@@ -1,6 +1,6 @@
 CXX := g++
 TARGET := cell_move_router
-OPENMPFLAG := -fopenmp
+OPENMPFLAG := 
 CXXFLAGS := -std=c++11 -O3 -Wall -Wextra
 INCLUDE := src/include
 SRC_DIRS := src\
