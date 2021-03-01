@@ -5,7 +5,8 @@ CXXFLAGS := -std=c++11 -O3 -Wall -Wextra
 INCLUDE := src/include
 SRC_DIRS := src\
 			src/lib\
-			src/lib/cell_move_router
+			src/lib/cell_move_router\
+			src/lib/cell_move_router/RawData
 SRCS := $(wildcard $(SRC_DIRS:=/*.cpp))
 OBJS := $(SRCS:.cpp=.o)
 DEPS = $(OBJS:.o=.d)

@@ -1,8 +1,8 @@
 #include "cell_move_router/Parser.hpp"
 
 namespace cell_move_router {
-std::unique_ptr<Input> Parser::parse(std::istream &input) {
+std::unique_ptr<RawData::Input> Parser::parse(std::istream &input) {
   // TODO
-  return std::unique_ptr<Input>(new Input);
+  return std::unique_ptr<RawData::Input>(new RawData::Input());
 }
 } // namespace cell_move_router
