@@ -11,7 +11,7 @@ or
 
 ~~~
 $ git clone https://github.com/jacky860226/ICCAD-2021-B.git
-$ cd ICCAD_2020_B
+$ cd ICCAD-2021-B
 $ git submodule init
 $ git submodule update --recursive
 $ cd ..
@@ -19,7 +19,7 @@ $ cd ..
 
 **Step 2:** Go to the project root and build by
 ~~~
-$ cd ICCAD_2020_B
+$ cd ICCAD-2021-B
 $ export BOOST_LIBRARY_PATH=your/boost/library/path
 $ make
 ~~~
