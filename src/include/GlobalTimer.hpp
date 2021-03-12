@@ -27,5 +27,3 @@ public:
   }
   bool overTime() { return getDuration<>() >= timeLimit; }
 };
-
-std::unique_ptr<GlobalTimer> GlobalTimer::uniqueGlobalTimer = nullptr;
