@@ -96,16 +96,78 @@ public:
   bool isMovable() const { return IsMovable; }
   void to_ostream(std::ostream &out) const override;
 };
+
 class Net : Util::Outputable {
 public:
+  class Pin : Util::Outputable {
+    const std::string InstName;
+    const std::string MasterPinName;
+
+  public:
+    Pin(std::string &&InstName, std::string &&MasterPinName);
+    void to_ostream(std::ostream &out) const override;
+  };
+
+private:
+  const std::string NetName;
+  const std::vector<Pin> Pins;
+  const std::string MinRoutingLayConstraint;
+  const double Weight;
+
+public:
+  Net(std::string &&NetName, std::vector<Pin> &&Pins,
+      std::string &&MinRoutingLayConstraint, const double Weight);
+  const std::string &getNetName() const { return NetName; }
+  int getNumPins() const { return Pins.size(); }
+  const std::vector<Pin> &getPins() { return Pins; }
+  const std::string &getMinRoutingLayConstraint() const {
+    return MinRoutingLayConstraint;
+  }
+  double getWeight() const { return Weight; }
   void to_ostream(std::ostream &out) const override;
 };
+
 class VoltageArea : Util::Outputable {
 public:
+  class GGrid : Util::Outputable {
+  private:
+    const int GGridRowIdx, GGridColIdx;
+
+  public:
+    GGrid(const int GGridRowIdx, const int GGridColIdx);
+    int getGGridRowIdx() const { return GGridRowIdx; }
+    int getGGridColIdx() const { return GGridColIdx; }
+    void to_ostream(std::ostream &out) const override;
+  };
+  class Instance : Util::Outputable {
+  private:
+    const std::string InstanceName;
+
+  public:
+    Instance(std::string &&InstanceName);
+    void to_ostream(std::ostream &out) const override;
+  };
+
+private:
+  const std::string VoltageAreaName;
+  const std::vector<GGrid> GGrids;
+  const std::vector<Instance> Instances;
+
+public:
+  VoltageArea(std::string &&VoltageAreaName, std::vector<GGrid> &&GGrids,
+              std::vector<Instance> &&Instances);
   void to_ostream(std::ostream &out) const override;
 };
+
 class Route : Util::Outputable {
+  const int SRowIdx, SColIdx, SLayIdx;
+  const int ERowIdx, EColIdx, ELayIdx;
+  const std::string NetName;
+
 public:
+  Route(const int SRowIdx, const int SColIdx, const int SLayIdx,
+        const int ERowIdx, const int EColIdx, const int ELayIdx,
+        std::string &&NetName);
   void to_ostream(std::ostream &out) const override;
 };
 } // namespace RawData

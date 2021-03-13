@@ -74,10 +74,66 @@ void CellInst::to_ostream(std::ostream &out) const {
       << ' ' << GGridColIdx << ' ' << (IsMovable ? "Movable" : "Fixed") << '\n';
 }
 
-// TODO
+Net::Net(std::string &&NetName, std::vector<Net::Pin> &&Pins,
+         std::string &&MinRoutingLayConstraint, const double Weight)
+    : NetName(NetName), Pins(Pins),
+      MinRoutingLayConstraint(MinRoutingLayConstraint), Weight(Weight) {}
 
-void Net::to_ostream(std::ostream &out) const {}
-void VoltageArea::to_ostream(std::ostream &out) const {}
-void Route::to_ostream(std::ostream &out) const {}
+void Net::to_ostream(std::ostream &out) const {
+  out << "Net " << NetName << ' ' << Pins.size() << ' '
+      << MinRoutingLayConstraint << ' ' << Weight << '\n';
+  for (auto pin : Pins) {
+    pin.to_ostream(out);
+  }
+}
+
+Net::Pin::Pin(std::string &&InstName, std::string &&MasterPinName)
+    : InstName(InstName), MasterPinName(MasterPinName) {}
+
+void Net::Pin::to_ostream(std::ostream &out) const {
+  out << "Pin " << InstName << '/' << MasterPinName << '\n';
+}
+
+VoltageArea::GGrid::GGrid(const int GGridRowIdx, const int GGridColIdx)
+    : GGridRowIdx(GGridRowIdx), GGridColIdx(GGridColIdx) {}
+
+void VoltageArea::GGrid::to_ostream(std::ostream &out) const {
+  out << GGridRowIdx << ' ' << GGridColIdx << '\n';
+}
+
+VoltageArea::Instance::Instance(std::string &&InstanceName)
+    : InstanceName(InstanceName) {}
+
+void VoltageArea::Instance::to_ostream(std::ostream &out) const {
+  out << InstanceName << '\n';
+}
+
+VoltageArea::VoltageArea(std::string &&VoltageAreaName,
+                         std::vector<VoltageArea::GGrid> &&GGrids,
+                         std::vector<VoltageArea::Instance> &&Instances)
+    : VoltageAreaName(VoltageAreaName), GGrids(GGrids), Instances(Instances) {}
+
+void VoltageArea::to_ostream(std::ostream &out) const {
+  out << "Name " << VoltageAreaName << '\n';
+  out << "GGrids " << GGrids.size() << '\n';
+  for (auto grid : GGrids) {
+    grid.to_ostream(out);
+  }
+  out << "Instances " << Instances.size() << '\n';
+  for (auto instance : Instances) {
+    instance.to_ostream(out);
+  }
+}
+
+Route::Route(const int SRowIdx, const int SColIdx, const int SLayIdx,
+             const int ERowIdx, const int EColIdx, const int ELayIdx,
+             std::string &&NetName)
+    : SRowIdx(SRowIdx), SColIdx(SColIdx), SLayIdx(SLayIdx), ERowIdx(ERowIdx),
+      EColIdx(EColIdx), ELayIdx(ELayIdx), NetName(NetName) {}
+
+void Route::to_ostream(std::ostream &out) const {
+  out << SRowIdx << ' ' << SColIdx << ' ' << SLayIdx << ' ' << ERowIdx << ' '
+      << EColIdx << ' ' << ELayIdx << ' ' << NetName << '\n';
+}
 } // namespace RawData
 } // namespace cell_move_router
