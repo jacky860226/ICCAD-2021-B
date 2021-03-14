@@ -230,6 +230,7 @@ std::vector<RawData::Route> Parser::parseRoutes(std::istream &input) {
     Routes.emplace_back(SRowIdx, SColIdx, SLayIdx, ERowIdx, EColIdx, ELayIdx,
                         std::move(NetName));
   }
+  return Routes;
 }
 
 std::unique_ptr<RawData::Input> Parser::parse(std::istream &input) {
