@@ -5,7 +5,6 @@
 #include <vector>
 namespace cell_move_router {
 namespace RawData {
-// TODO: implement the raw datas
 class Layer : Util::Outputable {
   const std::string LayerName;
   const int Idx;
@@ -67,8 +66,8 @@ public:
 
 private:
   const std::string MasterCellName;
-  std::vector<Pin> Pins;
-  std::vector<Blkg> Blkgs;
+  const std::vector<Pin> Pins;
+  const std::vector<Blkg> Blkgs;
 
 public:
   MasterCell(std::string &&MasterCellName, std::vector<Pin> &&Pins,

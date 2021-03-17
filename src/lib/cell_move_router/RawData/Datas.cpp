@@ -36,7 +36,7 @@ MasterCell::MasterCell(std::string &&MasterCellName, std::vector<Pin> &&Pins,
 
 void MasterCell::to_ostream(std::ostream &out) const {
   out << "MasterCell " << MasterCellName << ' ' << Pins.size() << ' '
-      << Blkgs.size();
+      << Blkgs.size() << '\n';
   for (const auto &pin : Pins) {
     pin.to_ostream(out);
   }
@@ -70,7 +70,7 @@ CellInst::CellInst(std::string &&InstName, std::string &&MasterCellName,
 }
 
 void CellInst::to_ostream(std::ostream &out) const {
-  out << "CellInst" << InstName << ' ' << MasterCellName << ' ' << GGridRowIdx
+  out << "CellInst " << InstName << ' ' << MasterCellName << ' ' << GGridRowIdx
       << ' ' << GGridColIdx << ' ' << (IsMovable ? "Movable" : "Fixed") << '\n';
 }
 
