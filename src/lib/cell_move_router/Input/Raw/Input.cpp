@@ -1,7 +1,8 @@
-#include "cell_move_router/RawData/Input.hpp"
+#include "cell_move_router/Input/Raw/Input.hpp"
 
 namespace cell_move_router {
-namespace RawData {
+namespace Input {
+namespace Raw {
 Input::Input(unsigned MaxCellMove, int RowBeginIdx, int ColBeginIdx,
              int RowEndIdx, int ColEndIdx, std::vector<Layer> &&Layers,
              std::vector<NonDefaultSupplyGGrid> &&NonDefaultSupplyGGrids,
@@ -51,5 +52,6 @@ void Input::to_ostream(std::ostream &out) const {
   for (const auto &Route : Routes)
     Route.to_ostream(out);
 }
-} // namespace RawData
+} // namespace Raw
+} // namespace Input
 } // namespace cell_move_router

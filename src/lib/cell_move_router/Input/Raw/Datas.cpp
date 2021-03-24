@@ -1,6 +1,7 @@
-#include "cell_move_router/RawData/Datas.hpp"
+#include "cell_move_router/Input/Raw/Datas.hpp"
 namespace cell_move_router {
-namespace RawData {
+namespace Input {
+namespace Raw {
 
 Layer::Layer(std::string &&LayerName, const int Idx, const char RoutingDir,
              const int DefaultSupplyOfOneGGrid, const double PowerFactor)
@@ -135,5 +136,6 @@ void Route::to_ostream(std::ostream &out) const {
   out << SRowIdx << ' ' << SColIdx << ' ' << SLayIdx << ' ' << ERowIdx << ' '
       << EColIdx << ' ' << ELayIdx << ' ' << NetName << '\n';
 }
-} // namespace RawData
+} // namespace Raw
+} // namespace Input
 } // namespace cell_move_router

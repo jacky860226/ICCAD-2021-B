@@ -4,7 +4,8 @@
 #include <string>
 #include <vector>
 namespace cell_move_router {
-namespace RawData {
+namespace Input {
+namespace Raw {
 class Layer : Util::Outputable {
   const std::string LayerName;
   const int Idx;
@@ -169,5 +170,6 @@ public:
         std::string &&NetName);
   void to_ostream(std::ostream &out) const override;
 };
-} // namespace RawData
+} // namespace Raw
+} // namespace Input
 } // namespace cell_move_router
