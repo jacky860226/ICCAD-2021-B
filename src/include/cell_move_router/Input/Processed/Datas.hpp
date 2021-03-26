@@ -89,6 +89,50 @@ public:
   void to_ostream(std::ostream &out) const override;
 };
 
+class Net : Util::Outputable {
+public:
+  class Pin : Util::Outputable {
+    // const std::string InstName;
+    const CellInst *Inst;
+    // const std::string MasterPinName;
+    const MasterCell::Pin *MasterPin;
+
+  public:
+    // Pin(std::string &&InstName, std::string &&MasterPinName);
+    Pin(const CellInst *Inst, const MasterCell::Pin *MasterPin);
+    void to_ostream(std::ostream &out) const override;
+    const CellInst *getInst() const { return Inst; }
+    const MasterCell::Pin *getMasterPin() const { return MasterPin; }
+  };
+
+private:
+  // const std::string NetName;
+  const Raw::Net *RawNet;
+  const std::vector<Pin> Pins;
+  // const std::string MinRoutingLayConstraint;
+  const Raw::Layer *MinRoutingLayConstraint;
+  // const double Weight;
+
+  static std::vector<Pin>
+  CreatePins(const Raw::Net *RawNet,
+             const std::unordered_map<std::string, CellInst *> CellInstMap);
+
+public:
+  Net(const Raw::Net *RawNet,
+      const std::unordered_map<std::string, CellInst *> CellInstMap,
+      const std::unordered_map<std::string, const Raw::Layer *> &LayerMap);
+  const std::string &getNetName() const { return RawNet->getNetName(); }
+  int getNumPins() const { return RawNet->getNumPins(); }
+  const std::vector<Raw::Net::Pin> &getPins() const {
+    return RawNet->getPins();
+  }
+  const Raw::Layer *getMinRoutingLayConstraint() const {
+    return MinRoutingLayConstraint;
+  }
+  double getWeight() const { return RawNet->getWeight(); }
+  void to_ostream(std::ostream &out) const override;
+};
+
 // TODO
 } // namespace Processed
 } // namespace Input
