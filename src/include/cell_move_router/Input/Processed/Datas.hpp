@@ -68,6 +68,27 @@ public:
   }
   void to_ostream(std::ostream &out) const override;
 };
+
+class CellInst : Util::Outputable {
+  // const std::string InstName;
+  // const std::string MasterCellName;
+  // const int GGridRowIdx;
+  // const int GGridColIdx;
+  // const bool IsMovable;
+  const Raw::CellInst *RawCellInst;
+  const MasterCell *ProcessedMasterCell;
+
+public:
+  CellInst(const Raw::CellInst *RawCellInst,
+           const std::unordered_map<std::string, MasterCell *> MasterCellMap);
+  const std::string &getInstName() const { return RawCellInst->getInstName(); }
+  const MasterCell *getMasterCell() const { return ProcessedMasterCell; }
+  int getGGridRowIdx() const { return RawCellInst->getGGridRowIdx(); }
+  int getGGridColIdx() const { return RawCellInst->getGGridColIdx(); }
+  bool isMovable() const { return RawCellInst->isMovable(); }
+  void to_ostream(std::ostream &out) const override;
+};
+
 // TODO
 } // namespace Processed
 } // namespace Input
