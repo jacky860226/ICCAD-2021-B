@@ -105,6 +105,8 @@ public:
 
   public:
     Pin(std::string &&InstName, std::string &&MasterPinName);
+    const std::string &getInstName() const { return InstName; }
+    const std::string &getMasterPinName() const { return MasterPinName; }
     void to_ostream(std::ostream &out) const override;
   };
 
@@ -119,7 +121,7 @@ public:
       std::string &&MinRoutingLayConstraint, const double Weight);
   const std::string &getNetName() const { return NetName; }
   int getNumPins() const { return Pins.size(); }
-  const std::vector<Pin> &getPins() { return Pins; }
+  const std::vector<Pin> &getPins() const { return Pins; }
   const std::string &getMinRoutingLayConstraint() const {
     return MinRoutingLayConstraint;
   }
