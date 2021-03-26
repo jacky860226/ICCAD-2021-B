@@ -147,6 +147,7 @@ public:
 
   public:
     Instance(std::string &&InstanceName);
+    const std::string &getInstanceName() const { return InstanceName; }
     void to_ostream(std::ostream &out) const override;
   };
 
@@ -159,6 +160,9 @@ public:
   VoltageArea(std::string &&VoltageAreaName, std::vector<GGrid> &&GGrids,
               std::vector<Instance> &&Instances);
   void to_ostream(std::ostream &out) const override;
+  const std::string &getVoltageAreaName() const { return VoltageAreaName; }
+  const std::vector<GGrid> &getGGrids() const { return GGrids; }
+  const std::vector<Instance> &getInstances() const { return Instances; }
 };
 
 class Route : Util::Outputable {
@@ -171,6 +175,13 @@ public:
         const int ERowIdx, const int EColIdx, const int ELayIdx,
         std::string &&NetName);
   void to_ostream(std::ostream &out) const override;
+  int getSRowIdx() const { return SRowIdx; }
+  int getSColIdx() const { return SColIdx; }
+  int getSLayIdx() const { return SLayIdx; }
+  int getERowIdx() const { return ERowIdx; }
+  int getEColIdx() const { return EColIdx; }
+  int getELayIdx() const { return ELayIdx; }
+  const std::string &getNetName() const { return NetName; }
 };
 } // namespace Raw
 } // namespace Input

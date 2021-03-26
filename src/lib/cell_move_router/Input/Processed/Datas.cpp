@@ -32,10 +32,9 @@ std::unordered_map<std::string, MasterCell::Pin> MasterCell::CreatePinMap(
     const Raw::MasterCell *RawMasterCell,
     const std::unordered_map<std::string, const Raw::Layer *> &LayerMap) {
   std::unordered_map<std::string, MasterCell::Pin> PinMap;
-  for (const auto &Pin : RawMasterCell->getPins()) {
+  for (const auto &Pin : RawMasterCell->getPins())
     PinMap.emplace(Pin.getPinName(),
                    MasterCell::Pin(LayerMap.at(Pin.getPinLayer())));
-  }
   return PinMap;
 }
 std::unordered_map<std::string, MasterCell::Blkg> MasterCell::CreateBlkgMap(
@@ -88,6 +87,36 @@ Net::Net(const Raw::Net *RawNet,
           LayerMap.at(RawNet->getMinRoutingLayConstraint())) {}
 
 void Net::to_ostream(std::ostream &out) const {
+  // TODO
+}
+
+std::vector<CellInst *> VoltageArea::CreateInstances(
+    const Raw::VoltageArea *RawVoltageArea,
+    const std::unordered_map<std::string, CellInst *> CellInstMap) {
+  std::vector<CellInst *> Instances;
+  for (const auto &Inst : RawVoltageArea->getInstances())
+    Instances.emplace_back(CellInstMap.at(Inst.getInstanceName()));
+  return Instances;
+}
+
+VoltageArea::VoltageArea(
+    const Raw::VoltageArea *RawVoltageArea,
+    const std::unordered_map<std::string, CellInst *> CellInstMap)
+    : RawVoltageArea(RawVoltageArea),
+      Instances(CreateInstances(RawVoltageArea, CellInstMap)) {}
+
+void VoltageArea::to_ostream(std::ostream &out) const {
+  // TODO
+}
+
+Route::Route(Raw::Route *RawRoute,
+             std::unordered_map<std::string, Net *> NetMap)
+    : SRowIdx(RawRoute->getSRowIdx()), SColIdx(RawRoute->getSColIdx()),
+      SLayIdx(RawRoute->getSLayIdx()), ERowIdx(RawRoute->getERowIdx()),
+      EColIdx(RawRoute->getEColIdx()), ELayIdx(RawRoute->getELayIdx()),
+      NetPtr(NetMap.at(RawRoute->getNetName())) {}
+
+void Route::to_ostream(std::ostream &out) const {
   // TODO
 }
 
