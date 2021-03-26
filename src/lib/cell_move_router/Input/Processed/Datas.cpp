@@ -11,6 +11,18 @@ MasterCell::MasterCell(
   // TODO
 }
 
+void MasterCell::Pin::to_ostream(std::ostream &out) const {
+  // TODO
+}
+
+void MasterCell::Blkg::to_ostream(std::ostream &out) const {
+  // TODO
+}
+
+void MasterCell::to_ostream(std::ostream &out) const {
+  // TODO
+}
+
 MasterCell::Pin::Pin(const Raw::Layer *PinLayer) : PinLayer(PinLayer) {}
 
 MasterCell::Blkg::Blkg(const Raw::Layer *BlockageLayer, const int Demand)
@@ -20,9 +32,10 @@ std::unordered_map<std::string, MasterCell::Pin> MasterCell::CreatePinMap(
     const Raw::MasterCell *RawMasterCell,
     const std::unordered_map<std::string, const Raw::Layer *> &LayerMap) {
   std::unordered_map<std::string, MasterCell::Pin> PinMap;
-  // for (const auto &Pin : RawMasterCell->getPins()) {
-  //   PinMap[Pin.getPinName()] = MasterCell::Pin(LayerMap.at(Pin.getPinLayer()));
-  // }
+  for (const auto &Pin : RawMasterCell->getPins()) {
+    PinMap[Pin.getPinName()] =
+    MasterCell::Pin(LayerMap.at(Pin.getPinLayer()));
+  }
   return PinMap;
 }
 std::unordered_map<std::string, MasterCell::Blkg> MasterCell::CreateBlkgMap(
