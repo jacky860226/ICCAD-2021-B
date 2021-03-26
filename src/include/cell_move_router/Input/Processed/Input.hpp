@@ -2,6 +2,7 @@
 #include "Util/BaseType.hpp"
 #include "cell_move_router/Input/Raw/Datas.hpp"
 #include "cell_move_router/Input/Raw/Input.hpp"
+#include "cell_move_router/Input/Processed/Datas.hpp"
 #include <memory>
 #include <ostream>
 #include <vector>
@@ -12,11 +13,11 @@ namespace Processed {
 class Input : Util::Outputable {
   std::unique_ptr<Raw::Input> RawInput;
 
-  // const std::vector<MasterCell> MasterCells;
-  // const std::vector<CellInst> CellInsts;
-  // const std::vector<Net> Nets;
-  // const std::vector<VoltageArea> VoltageAreas;
-  // const std::vector<Route> Routes;
+  const std::vector<MasterCell> MasterCells;
+  const std::vector<CellInst> CellInsts;
+  const std::vector<Net> Nets;
+  const std::vector<VoltageArea> VoltageAreas;
+  const std::vector<Route> Routes;
 
 public:
   Input(std::unique_ptr<Raw::Input> &&RawInput);

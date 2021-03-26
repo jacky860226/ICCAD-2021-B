@@ -133,7 +133,44 @@ public:
   void to_ostream(std::ostream &out) const override;
 };
 
-// TODO
+class VoltageArea : Util::Outputable {
+
+private:
+  const Raw::VoltageArea *RawVoltageArea;
+  const std::vector<CellInst *> Instances;
+
+  static std::vector<CellInst *> CreateInstances(
+      const Raw::VoltageArea *RawVoltageArea,
+      const std::unordered_map<std::string, CellInst *> CellInstMap);
+
+public:
+  VoltageArea(const Raw::VoltageArea *RawVoltageArea,
+              const std::unordered_map<std::string, CellInst *> CellInstMap);
+  void to_ostream(std::ostream &out) const override;
+  const Raw::VoltageArea *const getRawVoltageArea() const {
+    return RawVoltageArea;
+  }
+  const std::vector<CellInst *> &getInstances() const { return Instances; }
+};
+
+class Route : Util::Outputable {
+  const int SRowIdx, SColIdx, SLayIdx;
+  const int ERowIdx, EColIdx, ELayIdx;
+  // const std::string NetName;
+  const Net *NetPtr;
+
+public:
+  Route(Raw::Route *RawRoute, std::unordered_map<std::string, Net *> NetMap);
+  void to_ostream(std::ostream &out) const override;
+  int getSRowIdx() const { return SRowIdx; }
+  int getSColIdx() const { return SColIdx; }
+  int getSLayIdx() const { return SLayIdx; }
+  int getERowIdx() const { return ERowIdx; }
+  int getEColIdx() const { return EColIdx; }
+  int getELayIdx() const { return ELayIdx; }
+  const Net *getNetPtr() const { return NetPtr; }
+};
+
 } // namespace Processed
 } // namespace Input
 } // namespace cell_move_router
