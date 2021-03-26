@@ -26,6 +26,22 @@ public:
         std::vector<CellInst> &&CellInsts, std::vector<Net> &&Nets,
         std::vector<VoltageArea> &&VoltageAreas, std::vector<Route> &&Routes);
   void to_ostream(std::ostream &out) const override;
+  unsigned getMaxCellMove() const { return MaxCellMove; }
+  int getRowBeginIdx() const { return RowBeginIdx; }
+  int getColBeginIdx() const { return ColBeginIdx; }
+  int getRowEndIdx() const { return RowEndIdx; }
+  int getColEndIdx() const { return ColEndIdx; }
+  const std::vector<Layer> &getLayers() const { return Layers; }
+  const std::vector<NonDefaultSupplyGGrid> &getNonDefaultSupplyGGrids() const {
+    return NonDefaultSupplyGGrids;
+  }
+  const std::vector<MasterCell> &getMasterCellss() const { return MasterCells; }
+  const std::vector<CellInst> &getCellInsts() const { return CellInsts; }
+  const std::vector<Net> &getNets() const { return Nets; }
+  const std::vector<VoltageArea> &getVoltageAreas() const {
+    return VoltageAreas;
+  }
+  const std::vector<Route> &getRoutes() const { return Routes; }
 };
 } // namespace Raw
 } // namespace Input
