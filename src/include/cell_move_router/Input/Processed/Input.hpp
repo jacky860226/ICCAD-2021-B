@@ -5,14 +5,14 @@
 #include <vector>
 
 namespace cell_move_router {
+namespace Input {
 namespace Processed {
-namespace Raw {
 class Input : Util::Outputable {
   // TODO
 
 public:
-    void to_ostream(std::ostream &out) const override;
+  void to_ostream(std::ostream &out) const override;
 };
-} // namespace Raw
 } // namespace Processed
+} // namespace Input
 } // namespace cell_move_router
