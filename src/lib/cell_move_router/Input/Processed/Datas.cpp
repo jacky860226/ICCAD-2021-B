@@ -11,16 +11,8 @@ MasterCell::MasterCell(
       PinMap(MasterCell::CreatePinMap(RawMasterCell, LayerMap)),
       BlkgMap(MasterCell::CreateBlkgMap(RawMasterCell, LayerMap)) {}
 
-void MasterCell::Pin::to_ostream(std::ostream &out) const {
-  // TODO
-}
-
-void MasterCell::Blkg::to_ostream(std::ostream &out) const {
-  // TODO
-}
-
 void MasterCell::to_ostream(std::ostream &out) const {
-  // TODO
+  RawMasterCell->to_ostream(out);
 }
 
 MasterCell::Pin::Pin(const Raw::Layer *PinLayer) : PinLayer(PinLayer) {}
@@ -51,6 +43,7 @@ std::unordered_map<std::string, MasterCell::Blkg> MasterCell::CreateBlkgMap(
 
 void CellInst::to_ostream(std::ostream &out) const {
   // TODO
+  RawCellInst->to_ostream(out);
 }
 
 CellInst::CellInst(
@@ -62,10 +55,6 @@ CellInst::CellInst(
 
 Net::Pin::Pin(const CellInst *Inst, const MasterCell::Pin *MasterPin)
     : Inst(Inst), MasterPin(MasterPin) {}
-
-void Net::Pin::to_ostream(std::ostream &out) const {
-  // TODO
-}
 
 std::vector<Net::Pin>
 Net::CreatePins(const Raw::Net *RawNet,
@@ -86,9 +75,7 @@ Net::Net(const Raw::Net *RawNet,
       MinRoutingLayConstraint(
           LayerMap.at(RawNet->getMinRoutingLayConstraint())) {}
 
-void Net::to_ostream(std::ostream &out) const {
-  // TODO
-}
+void Net::to_ostream(std::ostream &out) const { RawNet->to_ostream(out); }
 
 std::vector<CellInst *> VoltageArea::CreateInstances(
     const Raw::VoltageArea *RawVoltageArea,
@@ -106,7 +93,7 @@ VoltageArea::VoltageArea(
       Instances(CreateInstances(RawVoltageArea, CellInstMap)) {}
 
 void VoltageArea::to_ostream(std::ostream &out) const {
-  // TODO
+  RawVoltageArea->to_ostream(out);
 }
 
 Route::Route(Raw::Route *RawRoute,
@@ -119,8 +106,6 @@ Route::Route(Raw::Route *RawRoute,
 void Route::to_ostream(std::ostream &out) const {
   // TODO
 }
-
-// TODO
 } // namespace Processed
 } // namespace Input
 } // namespace cell_move_router
