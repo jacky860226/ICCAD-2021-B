@@ -1,5 +1,6 @@
 #include "GlobalTimer.hpp"
 #include "cell_move_router/IOStreamCreator.hpp"
+#include "cell_move_router/Input/Processed/Input.hpp"
 #include "cell_move_router/Parser.hpp"
 #include <iostream>
 #include <istream>
@@ -13,10 +14,13 @@ int main(int argc, char **argv) {
   auto Input = Parser.parse(*InputStreamPtr);
   InputStreamPtr = nullptr;
 
+  auto ProcessedInput =
+      cell_move_router::Input::Processed::Input::createInput(std::move(Input));
+
   if (Input != nullptr) { // This is for test
     auto OutputStreamPtr =
         cell_move_router::OutputStreamCreator().createOutputStream(argc, argv);
-    Input->to_ostream(*OutputStreamPtr);
+    ProcessedInput->to_ostream(*OutputStreamPtr);
   }
 
   auto Timer = GlobalTimer::getInstance();

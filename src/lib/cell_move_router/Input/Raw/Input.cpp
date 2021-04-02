@@ -19,37 +19,38 @@ Input::Input(unsigned MaxCellMove, int RowBeginIdx, int ColBeginIdx,
       Routes(std::move(Routes)) {}
 
 void Input::to_ostream(std::ostream &out) const {
-  out << "MaxCellMove " << MaxCellMove << '\n';
+  out << "MaxCellMove " << getMaxCellMove() << '\n';
 
-  out << "GGridBoundaryIdx " << RowBeginIdx << ' ' << ColBeginIdx << ' '
-      << RowEndIdx << ' ' << ColEndIdx << '\n';
+  out << "GGridBoundaryIdx " << getRowBeginIdx() << ' ' << getColBeginIdx()
+      << ' ' << getRowEndIdx() << ' ' << getColEndIdx() << '\n';
 
-  out << "NumLayer " << Layers.size() << '\n';
-  for (const auto &Layer : Layers)
+  out << "NumLayer " << getLayers().size() << '\n';
+  for (const auto &Layer : getLayers())
     Layer.to_ostream(out);
 
-  out << "NumNonDefaultSupplyGGrid " << NonDefaultSupplyGGrids.size() << '\n';
-  for (const auto &NonDefaultSupplyGGrid : NonDefaultSupplyGGrids)
+  out << "NumNonDefaultSupplyGGrid " << getNonDefaultSupplyGGrids().size()
+      << '\n';
+  for (const auto &NonDefaultSupplyGGrid : getNonDefaultSupplyGGrids())
     NonDefaultSupplyGGrid.to_ostream(out);
 
-  out << "NumMasterCell " << MasterCells.size() << '\n';
-  for (const auto &MasterCell : MasterCells)
+  out << "NumMasterCell " << getMasterCells().size() << '\n';
+  for (const auto &MasterCell : getMasterCells())
     MasterCell.to_ostream(out);
 
-  out << "NumCellInst " << CellInsts.size() << '\n';
-  for (const auto &CellInst : CellInsts)
+  out << "NumCellInst " << getCellInsts().size() << '\n';
+  for (const auto &CellInst : getCellInsts())
     CellInst.to_ostream(out);
 
-  out << "NumNets " << Nets.size() << '\n';
-  for (const auto &Net : Nets)
+  out << "NumNets " << getNets().size() << '\n';
+  for (const auto &Net : getNets())
     Net.to_ostream(out);
 
-  out << "NumVoltageAreas " << VoltageAreas.size() << '\n';
-  for (const auto &VoltageArea : VoltageAreas)
+  out << "NumVoltageAreas " << getVoltageAreas().size() << '\n';
+  for (const auto &VoltageArea : getVoltageAreas())
     VoltageArea.to_ostream(out);
 
-  out << "NumRoutes " << Routes.size() << '\n';
-  for (const auto &Route : Routes)
+  out << "NumRoutes " << getRoutes().size() << '\n';
+  for (const auto &Route : getRoutes())
     Route.to_ostream(out);
 }
 } // namespace Raw
