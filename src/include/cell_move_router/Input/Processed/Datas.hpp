@@ -9,38 +9,27 @@ namespace Processed {
 
 class MasterCell : Util::Outputable {
 public:
-  class Pin : Util::Outputable {
+  class Pin {
   private:
-    // const std::string PinName;
-    // const std::string PinLayer;
     const Raw::Layer *PinLayer;
 
   public:
     Pin(const Raw::Layer *PinLayer);
-    // const std::string &getPinName() const { return PinName; }
     const Raw::Layer *getPinLayer() const { return PinLayer; }
-    void to_ostream(std::ostream &out) const override;
   };
-  class Blkg : Util::Outputable {
+  class Blkg {
   private:
-    // const std::string BlockageName;
-    // const std::string BlockageLayer;
     const Raw::Layer *BlockageLayer;
     const int Demand;
 
   public:
     Blkg(const Raw::Layer *BlockageLayer, const int Demand);
-    // const std::string &getBlockageName() const { return BlockageName; }
     const Raw::Layer *getBlockageLayer() const { return BlockageLayer; }
     int getDemand() const { return Demand; }
-    void to_ostream(std::ostream &out) const override;
   };
 
 private:
-  // const std::string MasterCellName;
   const Raw::MasterCell *RawMasterCell;
-  // const std::vector<Pin> Pins;
-  // const std::vector<Blkg> Blkgs;
   const std::unordered_map<std::string, Pin> PinMap;
   const std::unordered_map<std::string, Blkg> BlkgMap;
 
@@ -58,8 +47,6 @@ public:
   const std::string &getMasterCellName() const {
     return RawMasterCell->getMasterCellName();
   }
-  // const std::vector<Pin> &getPins() const { return Pins; }
-  // const std::vector<Blkg> &getBlkgs() const { return Blkgs; }
   const std::unordered_map<std::string, Pin> &getPinMap() const {
     return PinMap;
   }
@@ -70,11 +57,6 @@ public:
 };
 
 class CellInst : Util::Outputable {
-  // const std::string InstName;
-  // const std::string MasterCellName;
-  // const int GGridRowIdx;
-  // const int GGridColIdx;
-  // const bool IsMovable;
   const Raw::CellInst *RawCellInst;
   const MasterCell *ProcessedMasterCell;
 
@@ -91,27 +73,20 @@ public:
 
 class Net : Util::Outputable {
 public:
-  class Pin : Util::Outputable {
-    // const std::string InstName;
+  class Pin {
     const CellInst *Inst;
-    // const std::string MasterPinName;
     const MasterCell::Pin *MasterPin;
 
   public:
-    // Pin(std::string &&InstName, std::string &&MasterPinName);
     Pin(const CellInst *Inst, const MasterCell::Pin *MasterPin);
-    void to_ostream(std::ostream &out) const override;
     const CellInst *getInst() const { return Inst; }
     const MasterCell::Pin *getMasterPin() const { return MasterPin; }
   };
 
 private:
-  // const std::string NetName;
   const Raw::Net *RawNet;
   const std::vector<Pin> Pins;
-  // const std::string MinRoutingLayConstraint;
   const Raw::Layer *MinRoutingLayConstraint;
-  // const double Weight;
 
   static std::vector<Pin>
   CreatePins(const Raw::Net *RawNet,
@@ -156,7 +131,6 @@ public:
 class Route : Util::Outputable {
   const int SRowIdx, SColIdx, SLayIdx;
   const int ERowIdx, EColIdx, ELayIdx;
-  // const std::string NetName;
   const Net *NetPtr;
 
 public:
