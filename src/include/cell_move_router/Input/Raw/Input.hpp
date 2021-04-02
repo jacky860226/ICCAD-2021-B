@@ -35,7 +35,7 @@ public:
   const std::vector<NonDefaultSupplyGGrid> &getNonDefaultSupplyGGrids() const {
     return NonDefaultSupplyGGrids;
   }
-  const std::vector<MasterCell> &getMasterCellss() const { return MasterCells; }
+  const std::vector<MasterCell> &getMasterCells() const { return MasterCells; }
   const std::vector<CellInst> &getCellInsts() const { return CellInsts; }
   const std::vector<Net> &getNets() const { return Nets; }
   const std::vector<VoltageArea> &getVoltageAreas() const {

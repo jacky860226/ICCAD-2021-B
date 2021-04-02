@@ -1,8 +1,8 @@
 #pragma once
 #include "Util/BaseType.hpp"
+#include "cell_move_router/Input/Processed/Datas.hpp"
 #include "cell_move_router/Input/Raw/Datas.hpp"
 #include "cell_move_router/Input/Raw/Input.hpp"
-#include "cell_move_router/Input/Processed/Datas.hpp"
 #include <memory>
 #include <ostream>
 #include <vector>
@@ -13,14 +13,37 @@ namespace Processed {
 class Input : Util::Outputable {
   std::unique_ptr<Raw::Input> RawInput;
 
+  const std::unordered_map<std::string, const Raw::Layer *> LayerMap;
+
   const std::vector<MasterCell> MasterCells;
+  const std::unordered_map<std::string, const MasterCell *> MasterCellMap;
+
   const std::vector<CellInst> CellInsts;
+  const std::unordered_map<std::string, const CellInst *> CellInstMap;
+
   const std::vector<Net> Nets;
+  const std::unordered_map<std::string, const Net *> NetMap;
+
   const std::vector<VoltageArea> VoltageAreas;
   const std::vector<Route> Routes;
 
+  std::unordered_map<std::string, const Raw::Layer *> CreateLayerMap();
+  std::unordered_map<std::string, const MasterCell *> CreateMasterCellMap();
+  std::unordered_map<std::string, const CellInst *> CreateCellInstMap();
+  std::unordered_map<std::string, const Net *> CreateNetMap();
+
+  std::vector<MasterCell> CreateMasterCells();
+  std::vector<CellInst> CreateCellInsts();
+  std::vector<Net> CreateNets();
+  std::vector<VoltageArea> CreateVoltageAreas();
+  std::vector<Route> CreateRoutes();
+
 public:
   Input(std::unique_ptr<Raw::Input> &&RawInput);
+  static std::unique_ptr<Input>
+  createInput(std::unique_ptr<Raw::Input> &&RawInput) {
+    return std::unique_ptr<Input>(new Input(std::move(RawInput)));
+  }
   void to_ostream(std::ostream &out) const override;
   unsigned getMaxCellMove() const { return RawInput->getMaxCellMove(); }
   int getRowBeginIdx() const { return RawInput->getRowBeginIdx(); }
@@ -34,6 +57,13 @@ public:
   getNonDefaultSupplyGGrids() const {
     return RawInput->getNonDefaultSupplyGGrids();
   }
+  const std::vector<MasterCell> &getMasterCells() const { return MasterCells; }
+  const std::vector<CellInst> &getCellInsts() const { return CellInsts; }
+  const std::vector<Net> &getNets() const { return Nets; }
+  const std::vector<VoltageArea> &getVoltageAreas() const {
+    return VoltageAreas;
+  }
+  const std::vector<Route> &getRoutes() const { return Routes; }
 };
 } // namespace Processed
 } // namespace Input

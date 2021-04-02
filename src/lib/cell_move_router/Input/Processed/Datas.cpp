@@ -42,13 +42,12 @@ std::unordered_map<std::string, MasterCell::Blkg> MasterCell::CreateBlkgMap(
 }
 
 void CellInst::to_ostream(std::ostream &out) const {
-  // TODO
   RawCellInst->to_ostream(out);
 }
 
 CellInst::CellInst(
     const Raw::CellInst *RawCellInst,
-    const std::unordered_map<std::string, MasterCell *> MasterCellMap)
+    const std::unordered_map<std::string, const MasterCell *> &MasterCellMap)
     : RawCellInst(RawCellInst),
       ProcessedMasterCell(
           MasterCellMap.at(RawCellInst->Raw::CellInst::getMasterCellName())) {}
@@ -56,9 +55,9 @@ CellInst::CellInst(
 Net::Pin::Pin(const CellInst *Inst, const MasterCell::Pin *MasterPin)
     : Inst(Inst), MasterPin(MasterPin) {}
 
-std::vector<Net::Pin>
-Net::CreatePins(const Raw::Net *RawNet,
-                const std::unordered_map<std::string, CellInst *> CellInstMap) {
+std::vector<Net::Pin> Net::CreatePins(
+    const Raw::Net *RawNet,
+    const std::unordered_map<std::string, const CellInst *> &CellInstMap) {
   std::vector<Net::Pin> Pins;
   for (const auto &P : RawNet->getPins()) {
     auto Inst = CellInstMap.at(P.getInstName());
@@ -69,7 +68,7 @@ Net::CreatePins(const Raw::Net *RawNet,
 }
 
 Net::Net(const Raw::Net *RawNet,
-         const std::unordered_map<std::string, CellInst *> CellInstMap,
+         const std::unordered_map<std::string, const CellInst *> &CellInstMap,
          const std::unordered_map<std::string, const Raw::Layer *> &LayerMap)
     : RawNet(RawNet), Pins(CreatePins(RawNet, CellInstMap)),
       MinRoutingLayConstraint(
@@ -77,10 +76,10 @@ Net::Net(const Raw::Net *RawNet,
 
 void Net::to_ostream(std::ostream &out) const { RawNet->to_ostream(out); }
 
-std::vector<CellInst *> VoltageArea::CreateInstances(
+std::vector<const CellInst *> VoltageArea::CreateInstances(
     const Raw::VoltageArea *RawVoltageArea,
-    const std::unordered_map<std::string, CellInst *> CellInstMap) {
-  std::vector<CellInst *> Instances;
+    const std::unordered_map<std::string, const CellInst *> &CellInstMap) {
+  std::vector<const CellInst *> Instances;
   for (const auto &Inst : RawVoltageArea->getInstances())
     Instances.emplace_back(CellInstMap.at(Inst.getInstanceName()));
   return Instances;
@@ -88,7 +87,7 @@ std::vector<CellInst *> VoltageArea::CreateInstances(
 
 VoltageArea::VoltageArea(
     const Raw::VoltageArea *RawVoltageArea,
-    const std::unordered_map<std::string, CellInst *> CellInstMap)
+    const std::unordered_map<std::string, const CellInst *> &CellInstMap)
     : RawVoltageArea(RawVoltageArea),
       Instances(CreateInstances(RawVoltageArea, CellInstMap)) {}
 
@@ -96,15 +95,16 @@ void VoltageArea::to_ostream(std::ostream &out) const {
   RawVoltageArea->to_ostream(out);
 }
 
-Route::Route(Raw::Route *RawRoute,
-             std::unordered_map<std::string, Net *> NetMap)
+Route::Route(const Raw::Route *RawRoute,
+             const std::unordered_map<std::string, const Net *> &NetMap)
     : SRowIdx(RawRoute->getSRowIdx()), SColIdx(RawRoute->getSColIdx()),
       SLayIdx(RawRoute->getSLayIdx()), ERowIdx(RawRoute->getERowIdx()),
       EColIdx(RawRoute->getEColIdx()), ELayIdx(RawRoute->getELayIdx()),
       NetPtr(NetMap.at(RawRoute->getNetName())) {}
 
 void Route::to_ostream(std::ostream &out) const {
-  // TODO
+  out << SRowIdx << ' ' << SColIdx << ' ' << SLayIdx << ' ' << ERowIdx << ' '
+      << EColIdx << ' ' << ELayIdx << ' ' << NetPtr->getNetName() << '\n';
 }
 } // namespace Processed
 } // namespace Input

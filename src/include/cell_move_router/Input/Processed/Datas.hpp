@@ -61,8 +61,9 @@ class CellInst : Util::Outputable {
   const MasterCell *ProcessedMasterCell;
 
 public:
-  CellInst(const Raw::CellInst *RawCellInst,
-           const std::unordered_map<std::string, MasterCell *> MasterCellMap);
+  CellInst(
+      const Raw::CellInst *RawCellInst,
+      const std::unordered_map<std::string, const MasterCell *> &MasterCellMap);
   const std::string &getInstName() const { return RawCellInst->getInstName(); }
   const MasterCell *getMasterCell() const { return ProcessedMasterCell; }
   int getGGridRowIdx() const { return RawCellInst->getGGridRowIdx(); }
@@ -88,13 +89,13 @@ private:
   const std::vector<Pin> Pins;
   const Raw::Layer *MinRoutingLayConstraint;
 
-  static std::vector<Pin>
-  CreatePins(const Raw::Net *RawNet,
-             const std::unordered_map<std::string, CellInst *> CellInstMap);
+  static std::vector<Pin> CreatePins(
+      const Raw::Net *RawNet,
+      const std::unordered_map<std::string, const CellInst *> &CellInstMap);
 
 public:
   Net(const Raw::Net *RawNet,
-      const std::unordered_map<std::string, CellInst *> CellInstMap,
+      const std::unordered_map<std::string, const CellInst *> &CellInstMap,
       const std::unordered_map<std::string, const Raw::Layer *> &LayerMap);
   const std::string &getNetName() const { return RawNet->getNetName(); }
   int getNumPins() const { return RawNet->getNumPins(); }
@@ -112,20 +113,21 @@ class VoltageArea : Util::Outputable {
 
 private:
   const Raw::VoltageArea *RawVoltageArea;
-  const std::vector<CellInst *> Instances;
+  const std::vector<const CellInst *> Instances;
 
-  static std::vector<CellInst *> CreateInstances(
+  static std::vector<const CellInst *> CreateInstances(
       const Raw::VoltageArea *RawVoltageArea,
-      const std::unordered_map<std::string, CellInst *> CellInstMap);
+      const std::unordered_map<std::string, const CellInst *> &CellInstMap);
 
 public:
-  VoltageArea(const Raw::VoltageArea *RawVoltageArea,
-              const std::unordered_map<std::string, CellInst *> CellInstMap);
+  VoltageArea(
+      const Raw::VoltageArea *RawVoltageArea,
+      const std::unordered_map<std::string, const CellInst *> &CellInstMap);
   void to_ostream(std::ostream &out) const override;
-  const Raw::VoltageArea *const getRawVoltageArea() const {
-    return RawVoltageArea;
+  const Raw::VoltageArea *getRawVoltageArea() const { return RawVoltageArea; }
+  const std::vector<const CellInst *> &getInstances() const {
+    return Instances;
   }
-  const std::vector<CellInst *> &getInstances() const { return Instances; }
 };
 
 class Route : Util::Outputable {
@@ -134,7 +136,8 @@ class Route : Util::Outputable {
   const Net *NetPtr;
 
 public:
-  Route(Raw::Route *RawRoute, std::unordered_map<std::string, Net *> NetMap);
+  Route(const Raw::Route *RawRoute,
+        const std::unordered_map<std::string, const Net *> &NetMap);
   void to_ostream(std::ostream &out) const override;
   int getSRowIdx() const { return SRowIdx; }
   int getSColIdx() const { return SColIdx; }
