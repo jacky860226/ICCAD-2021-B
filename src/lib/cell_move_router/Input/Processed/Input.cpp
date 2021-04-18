@@ -6,6 +6,7 @@ namespace Processed {
 
 std::unordered_map<std::string, const Raw::Layer *> Input::CreateLayerMap() {
   std::unordered_map<std::string, const Raw::Layer *> LayerMap;
+  LayerMap["NoCstr"] = &RawInput->getLayers().at(0);
   for (const auto &Layer : RawInput->getLayers())
     LayerMap[Layer.getLayerName()] = &Layer;
   return LayerMap;

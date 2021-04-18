@@ -3,33 +3,23 @@
 
 namespace cell_move_router {
 unsigned Parser::parseMaxCellMove(std::istream &input) {
-  std::string buff;
-  input >> buff;
-  assert(buff == "MaxCellMove");
-
   unsigned MaxCellMove = 0;
   input >> MaxCellMove;
   return MaxCellMove;
 }
 std::tuple<int, int, int, int>
 Parser::parseGGridBoundaryIdx(std::istream &input) {
-  std::string buff;
-  input >> buff;
-  assert(buff == "GGridBoundaryIdx");
-
   int RowBeginIdx = 0, ColBeginIdx = 0, RowEndIdx = 0, ColEndIdx = 0;
   input >> RowBeginIdx >> ColBeginIdx >> RowEndIdx >> ColEndIdx;
   return std::make_tuple(RowBeginIdx, ColBeginIdx, RowEndIdx, ColEndIdx);
 }
 
 std::vector<Input::Raw::Layer> Parser::parseLayers(std::istream &input) {
-  std::string buff;
-  input >> buff;
-  assert(buff == "NumLayer");
   int LayerCount = 0;
   input >> LayerCount;
   std::vector<Input::Raw::Layer> Layers;
   for (int i = 0; i < LayerCount; ++i) {
+    std::string buff;
     input >> buff;
     assert(buff == "Lay");
     std::string LayerName;
@@ -47,9 +37,6 @@ std::vector<Input::Raw::Layer> Parser::parseLayers(std::istream &input) {
 
 std::vector<Input::Raw::NonDefaultSupplyGGrid>
 Parser::parseNonDefaultSupplyGGrids(std::istream &input) {
-  std::string buff;
-  input >> buff;
-  assert(buff == "NumNonDefaultSupplyGGrid");
   int NumNonDefaultSupplyGGrid = 0;
   input >> NumNonDefaultSupplyGGrid;
   std::vector<Input::Raw::NonDefaultSupplyGGrid> NonDefaultSupplyGGrids;
@@ -87,13 +74,11 @@ Input::Raw::MasterCell::Blkg parseBlkg(std::istream &input) {
 
 std::vector<Input::Raw::MasterCell>
 Parser::parseMasterCells(std::istream &input) {
-  std::string buff;
-  input >> buff;
-  assert(buff == "NumMasterCell");
   int NumMasterCell = 0;
   input >> NumMasterCell;
   std::vector<Input::Raw::MasterCell> MasterCells;
   for (int i = 0; i < NumMasterCell; ++i) {
+    std::string buff;
     input >> buff;
     assert(buff == "MasterCell");
     std::string MasterCellName;
@@ -115,13 +100,11 @@ Parser::parseMasterCells(std::istream &input) {
 }
 
 std::vector<Input::Raw::CellInst> Parser::parseCellInsts(std::istream &input) {
-  std::string buff;
-  input >> buff;
-  assert(buff == "NumCellInst");
   int CellInstCount;
   input >> CellInstCount;
   std::vector<Input::Raw::CellInst> CellInsts;
   for (int i = 0; i < CellInstCount; ++i) {
+    std::string buff;
     input >> buff;
     assert(buff == "CellInst");
     std::string InstName;
@@ -138,13 +121,11 @@ std::vector<Input::Raw::CellInst> Parser::parseCellInsts(std::istream &input) {
 }
 
 std::vector<Input::Raw::Net> Parser::parseNets(std::istream &input) {
-  std::string buff;
-  input >> buff;
-  assert(buff == "NumNets");
   int NetCount = 0;
   input >> NetCount;
   std::vector<Input::Raw::Net> Nets;
   for (int i = 0; i < NetCount; ++i) {
+    std::string buff;
     input >> buff;
     assert(buff == "Net");
     std::string NetName;
@@ -178,13 +159,11 @@ std::vector<Input::Raw::Net> Parser::parseNets(std::istream &input) {
 
 std::vector<Input::Raw::VoltageArea>
 Parser::parseVoltageAreas(std::istream &input) {
-  std::string buff;
-  input >> buff;
-  assert(buff == "NumVoltageAreas");
   int NumVoltageAreas = 0;
   input >> NumVoltageAreas;
   std::vector<Input::Raw::VoltageArea> VoltageAreas;
   for (int i = 0; i < NumVoltageAreas; ++i) {
+    std::string buff;
     input >> buff;
     assert(buff == "Name");
     std::string VoltageAreaName;
@@ -216,9 +195,6 @@ Parser::parseVoltageAreas(std::istream &input) {
 }
 
 std::vector<Input::Raw::Route> Parser::parseRoutes(std::istream &input) {
-  std::string buff;
-  input >> buff;
-  assert(buff == "NumRoutes");
   int RouteSegmentCount = 0;
   input >> RouteSegmentCount;
   std::vector<Input::Raw::Route> Routes;
@@ -235,26 +211,39 @@ std::vector<Input::Raw::Route> Parser::parseRoutes(std::istream &input) {
 }
 
 std::unique_ptr<Input::Raw::Input> Parser::parse(std::istream &input) {
-  unsigned MaxCellMove = parseMaxCellMove(input);
-
+  unsigned MaxCellMove;
   int RowBeginIdx = 0, ColBeginIdx = 0, RowEndIdx = 0, ColEndIdx = 0;
-  std::tie(RowBeginIdx, ColBeginIdx, RowEndIdx, ColEndIdx) =
-      parseGGridBoundaryIdx(input);
-
-  std::vector<Input::Raw::Layer> Layers = parseLayers(input);
-
-  std::vector<Input::Raw::NonDefaultSupplyGGrid> NonDefaultSupplyGGrids =
-      parseNonDefaultSupplyGGrids(input);
-
-  std::vector<Input::Raw::MasterCell> MasterCells = parseMasterCells(input);
-
-  std::vector<Input::Raw::CellInst> CellInsts = parseCellInsts(input);
-
-  std::vector<Input::Raw::Net> Nets = parseNets(input);
-
-  std::vector<Input::Raw::VoltageArea> VoltageAreas = parseVoltageAreas(input);
-
-  std::vector<Input::Raw::Route> Routes = parseRoutes(input);
+  std::vector<Input::Raw::Layer> Layers;
+  std::vector<Input::Raw::NonDefaultSupplyGGrid> NonDefaultSupplyGGrids;
+  std::vector<Input::Raw::MasterCell> MasterCells;
+  std::vector<Input::Raw::CellInst> CellInsts;
+  std::vector<Input::Raw::Net> Nets;
+  std::vector<Input::Raw::VoltageArea> VoltageAreas;
+  std::vector<Input::Raw::Route> Routes;
+  std::string buff;
+  while (input >> buff) {
+    if (buff == "MaxCellMove")
+      MaxCellMove = parseMaxCellMove(input);
+    else if (buff == "GGridBoundaryIdx")
+      std::tie(RowBeginIdx, ColBeginIdx, RowEndIdx, ColEndIdx) =
+          parseGGridBoundaryIdx(input);
+    else if (buff == "NumLayer")
+      Layers = parseLayers(input);
+    else if (buff == "NumNonDefaultSupplyGGrid")
+      NonDefaultSupplyGGrids = parseNonDefaultSupplyGGrids(input);
+    else if (buff == "NumMasterCell")
+      MasterCells = parseMasterCells(input);
+    else if (buff == "NumCellInst")
+      CellInsts = parseCellInsts(input);
+    else if (buff == "NumNets")
+      Nets = parseNets(input);
+    else if (buff == "NumVoltageAreas")
+      VoltageAreas = parseVoltageAreas(input);
+    else if (buff == "NumRoutes")
+      Routes = parseRoutes(input);
+    else
+      assert(false && "Input Error");
+  }
 
   return std::unique_ptr<Input::Raw::Input>(new Input::Raw::Input(
       MaxCellMove, RowBeginIdx, ColBeginIdx, RowEndIdx, ColEndIdx,
