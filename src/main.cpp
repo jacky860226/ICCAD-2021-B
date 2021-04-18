@@ -17,7 +17,7 @@ int main(int argc, char **argv) {
   auto ProcessedInput =
       cell_move_router::Input::Processed::Input::createInput(std::move(Input));
 
-  if (Input != nullptr) { // This is for test
+  if (ProcessedInput != nullptr) { // This is for test
     auto OutputStreamPtr =
         cell_move_router::OutputStreamCreator().createOutputStream(argc, argv);
     ProcessedInput->to_ostream(*OutputStreamPtr);
