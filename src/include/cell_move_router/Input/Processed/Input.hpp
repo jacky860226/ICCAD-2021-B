@@ -50,6 +50,12 @@ public:
   int getColBeginIdx() const { return RawInput->getColBeginIdx(); }
   int getRowEndIdx() const { return RawInput->getRowEndIdx(); }
   int getColEndIdx() const { return RawInput->getColEndIdx(); }
+  unsigned int getRowSize() const {
+    return getRowEndIdx() - getRowBeginIdx() + 1;
+  }
+  unsigned int getColsize() const {
+    return getColEndIdx() - getColBeginIdx() + 1;
+  }
   const std::vector<Raw::Layer> &getLayers() const {
     return RawInput->getLayers();
   }
