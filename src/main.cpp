@@ -1,4 +1,5 @@
 #include "GlobalTimer.hpp"
+#include "cell_move_router/Grid/GridManager.hpp"
 #include "cell_move_router/IOStreamCreator.hpp"
 #include "cell_move_router/Input/Processed/Input.hpp"
 #include "cell_move_router/Parser.hpp"
@@ -22,6 +23,8 @@ int main(int argc, char **argv) {
         cell_move_router::OutputStreamCreator().createOutputStream(argc, argv);
     ProcessedInput->to_ostream(*OutputStreamPtr);
   }
+
+  cell_move_router::Grid::GridManager GridManager(ProcessedInput.get());
 
   auto Timer = GlobalTimer::getInstance();
   std::cerr << Timer->getDuration<>().count() / 1e9 << " seconds\n";

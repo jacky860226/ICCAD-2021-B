@@ -124,9 +124,14 @@ public:
       const Raw::VoltageArea *RawVoltageArea,
       const std::unordered_map<std::string, const CellInst *> &CellInstMap);
   void to_ostream(std::ostream &out) const override;
-  const Raw::VoltageArea *getRawVoltageArea() const { return RawVoltageArea; }
   const std::vector<const CellInst *> &getInstances() const {
     return Instances;
+  }
+  const std::string &getVoltageAreaName() const {
+    return RawVoltageArea->getVoltageAreaName();
+  }
+  const std::vector<Raw::VoltageArea::GGrid> &getGGrids() const {
+    return RawVoltageArea->getGGrids();
   }
 };
 
@@ -136,6 +141,9 @@ class Route : Util::Outputable {
   const Net *NetPtr;
 
 public:
+  Route(const int SRowIdx, const int SColIdx, const int SLayIdx,
+        const int ERowIdx, const int EColIdx, const int ELayIdx,
+        const Net *NetPtr);
   Route(const Raw::Route *RawRoute,
         const std::unordered_map<std::string, const Net *> &NetMap);
   void to_ostream(std::ostream &out) const override;
