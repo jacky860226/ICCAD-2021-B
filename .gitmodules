@@ -1,0 +1,3 @@
+[submodule "src/include/Third/SteinerTree2"]
+	path = src/include/Third/SteinerTree2
+	url = https://github.com/jacky860226/steiner-tree-2-approximation.git
