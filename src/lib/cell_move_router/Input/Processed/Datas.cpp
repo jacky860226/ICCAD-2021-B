@@ -95,12 +95,20 @@ void VoltageArea::to_ostream(std::ostream &out) const {
   RawVoltageArea->to_ostream(out);
 }
 
+Route::Route(const int SRowIdx, const int SColIdx, const int SLayIdx,
+             const int ERowIdx, const int EColIdx, const int ELayIdx,
+             const Net *NetPtr)
+    : SRowIdx(std::min(SRowIdx, ERowIdx)), SColIdx(std::min(SColIdx, ERowIdx)),
+      SLayIdx(std::min(SLayIdx, ELayIdx)), ERowIdx(std::max(SRowIdx, ERowIdx)),
+      EColIdx(std::max(SColIdx, EColIdx)), ELayIdx(std::max(SLayIdx, ELayIdx)),
+      NetPtr(NetPtr) {}
+
 Route::Route(const Raw::Route *RawRoute,
              const std::unordered_map<std::string, const Net *> &NetMap)
-    : SRowIdx(RawRoute->getSRowIdx()), SColIdx(RawRoute->getSColIdx()),
-      SLayIdx(RawRoute->getSLayIdx()), ERowIdx(RawRoute->getERowIdx()),
-      EColIdx(RawRoute->getEColIdx()), ELayIdx(RawRoute->getELayIdx()),
-      NetPtr(NetMap.at(RawRoute->getNetName())) {}
+    : Route(RawRoute->getSRowIdx(), RawRoute->getSColIdx(),
+            RawRoute->getSLayIdx(), RawRoute->getERowIdx(),
+            RawRoute->getEColIdx(), RawRoute->getELayIdx(),
+            NetMap.at(RawRoute->getNetName())) {}
 
 void Route::to_ostream(std::ostream &out) const {
   out << SRowIdx << ' ' << SColIdx << ' ' << SLayIdx << ' ' << ERowIdx << ' '

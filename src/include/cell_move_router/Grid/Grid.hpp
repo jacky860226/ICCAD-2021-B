@@ -25,7 +25,7 @@ public:
   void addDemand(int Val) { Demand += Val; }
   void addCapacity(int Val) { Capacity += Val; }
   void addNet(const Input::Processed::Net *N) { NetSet.emplace(N); }
-  void RemoveNet(const Input::Processed::Net *N) { NetSet.erase(N); }
+  void removeNet(const Input::Processed::Net *N) { NetSet.erase(N); }
 };
 } // namespace Grid
 } // namespace cell_move_router
