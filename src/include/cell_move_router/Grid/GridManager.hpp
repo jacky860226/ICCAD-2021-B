@@ -23,17 +23,24 @@ private:
                      std::unordered_set<unsigned long long>>
       CellVoltageArea;
 
-  unsigned long long coordinateTrans(int R, int C, int L);
-  std::tuple<int, int, int> coordinateInv(unsigned long long Coordinate);
+  unsigned long long coordinateTrans(int R, int C, int L) const;
+  std::tuple<int, int, int> coordinateInv(unsigned long long Coordinate) const;
 
 public:
   GridManager(const Input::Processed::Input *InputPtr);
+  const Input::Processed::Input *getInputPtr() const { return InputPtr; }
   void addNet(const Input::Processed::Net *Net,
               std::vector<Input::Processed::Route> &&Routes);
   void removeNet(const Input::Processed::Net *Net);
   void addCell(const Input::Processed::CellInst *CellInst, const int Row,
                const int Col);
   void removeCell(const Input::Processed::CellInst *CellInst);
+  const Grid &getGrid(int R, int C, int L) const {
+    return Grids.at(coordinateTrans(R, C, L));
+  }
+  const CellGrid &getCellGrid(int R, int C) const {
+    return CellGrids.at(coordinateTrans(R, C, 1));
+  }
 };
 } // namespace Grid
 } // namespace cell_move_router

@@ -99,9 +99,7 @@ public:
       const std::unordered_map<std::string, const Raw::Layer *> &LayerMap);
   const std::string &getNetName() const { return RawNet->getNetName(); }
   int getNumPins() const { return RawNet->getNumPins(); }
-  const std::vector<Raw::Net::Pin> &getPins() const {
-    return RawNet->getPins();
-  }
+  const std::vector<Pin> &getPins() const { return Pins; }
   const Raw::Layer *getMinRoutingLayConstraint() const {
     return MinRoutingLayConstraint;
   }
