@@ -49,17 +49,19 @@ void Router::localRoute(const Input::Processed::Net *NetPtr) {
   for (int L = MinLayerIdx; L <= LayerSz; ++L) {
     for (int R = MinR; R <= MaxR; ++R) {
       for (int C = MinC; C <= MaxC; ++C) {
+        if (GridManagerPtr->getGrid(R, C, L).getSupply() <= 0)
+          continue;
         size_t Coord = Codec.encode({(unsigned long long)(R - MinR),
                                      (unsigned long long)(C - MinC),
                                      (unsigned long long)(L - 1)});
-        if (C != MaxC) {
+        if (C != MaxC && GridManagerPtr->getGrid(R, C + 1, L).getSupply() > 0) {
           size_t NeiCoord = Codec.encode({(unsigned long long)(R - MinR),
                                           (unsigned long long)(C - MinC + 1),
                                           (unsigned long long)(L - 1)});
           double Weight = LayerFactor.at(L) * 2;
           G.addEdge(Coord, NeiCoord, Weight);
         }
-        if (R != MaxR) {
+        if (R != MaxR && GridManagerPtr->getGrid(R + 1, C, L).getSupply() > 0) {
           size_t NeiCoord = Codec.encode({(unsigned long long)(R - MinR + 1),
                                           (unsigned long long)(C - MinC),
                                           (unsigned long long)(L - 1)});
@@ -74,6 +76,9 @@ void Router::localRoute(const Input::Processed::Net *NetPtr) {
   for (int L = 1; L < LayerSz; ++L) {
     for (int R = MinR; R <= MaxR; ++R) {
       for (int C = MinC; C <= MaxC; ++C) {
+        if (GridManagerPtr->getGrid(R, C, L).getSupply() <= 0 ||
+            GridManagerPtr->getGrid(R, C, L + 1).getSupply() <= 0)
+          continue;
         size_t Coord = Codec.encode({(unsigned long long)(R - MinR),
                                      (unsigned long long)(C - MinC),
                                      (unsigned long long)(L - 1)});
@@ -99,10 +104,20 @@ void Router::localRoute(const Input::Processed::Net *NetPtr) {
 
   steiner_tree::Solver<double> solver(G);
   auto Res = solver.solve(Terminals);
+
   double Cost = 0;
+  std::vector<Input::Processed::Route> Routes;
   for (auto &EdgeIdx : *Res) {
-    Cost += G.getEdge(EdgeIdx).cost;
+    auto &Edge = G.getEdge(EdgeIdx);
+    Cost += Edge.cost;
+    auto Decode1 = Codec.decode(Edge.v1);
+    auto Decode2 = Codec.decode(Edge.v2);
+    unsigned long long R1 = Decode1[0] + MinR, R2 = Decode2[0] + MinR;
+    unsigned long long C1 = Decode1[1] + MinC, C2 = Decode2[1] + MinC;
+    unsigned long long L1 = Decode1[2] + 1, L2 = Decode2[2] + 1;
+    Routes.emplace_back(R1, L1, C1, R2, L2, C2, NetPtr);
   }
+  GridManagerPtr->addNet(NetPtr, std::move(Routes));
 }
 
 void Router::route() {
