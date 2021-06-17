@@ -44,7 +44,7 @@ GridManager::GridManager(const Input::Processed::Input *InputPtr)
   }
 }
 
-unsigned long long GridManager::coordinateTrans(int R, int C, int L) {
+unsigned long long GridManager::coordinateTrans(int R, int C, int L) const {
   unsigned Row = R - InputPtr->getRowBeginIdx();
   unsigned Col = C - InputPtr->getColBeginIdx();
   unsigned Layer = L - 1;
@@ -52,7 +52,7 @@ unsigned long long GridManager::coordinateTrans(int R, int C, int L) {
 }
 
 std::tuple<int, int, int>
-GridManager::coordinateInv(unsigned long long Coordinate) {
+GridManager::coordinateInv(unsigned long long Coordinate) const {
   auto Coordinates = Codec.decode(Coordinate);
   int R = Coordinates[0] + InputPtr->getRowBeginIdx();
   int C = Coordinates[1] + InputPtr->getColBeginIdx();
