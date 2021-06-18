@@ -1,11 +1,12 @@
 #include "cell_move_router/Router/Router.hpp"
 #include "cell_move_router/CoordinateCodec.hpp"
+#include <iostream> // Test
 
 namespace cell_move_router {
 namespace Router {
-bool Router::netCmp(const Input::Processed::Net &,
-                    const Input::Processed::Net &) {
-  // TODO
+bool Router::netCmp(const Input::Processed::Net *A,
+                    const Input::Processed::Net *B) {
+  return A->getWeight() < B->getWeight();
 }
 
 void Router::localRoute(const Input::Processed::Net *NetPtr) {
@@ -13,7 +14,7 @@ void Router::localRoute(const Input::Processed::Net *NetPtr) {
   auto MinRoutingLayConstraint = NetPtr->getMinRoutingLayConstraint();
   int MinLayerIdx = MinRoutingLayConstraint->getIdx();
 
-  auto InputPtr = GridManagerPtr->getInputPtr();
+  const auto &InputPtr = GridManagerPtr->getInputPtr();
   int RowBeginIdx = InputPtr->getRowBeginIdx();
   int ColBeginIdx = InputPtr->getColBeginIdx();
   int RowEndIdx = InputPtr->getRowEndIdx();
@@ -105,11 +106,11 @@ void Router::localRoute(const Input::Processed::Net *NetPtr) {
   steiner_tree::Solver<double> solver(G);
   auto Res = solver.solve(Terminals);
 
-  double Cost = 0;
+  double Cost = 0; // Test
   std::vector<Input::Processed::Route> Routes;
   for (auto &EdgeIdx : *Res) {
     auto &Edge = G.getEdge(EdgeIdx);
-    Cost += Edge.cost;
+    Cost += Edge.cost; // Test
     auto Decode1 = Codec.decode(Edge.v1);
     auto Decode2 = Codec.decode(Edge.v2);
     unsigned long long R1 = Decode1[0] + MinR, R2 = Decode2[0] + MinR;
@@ -117,11 +118,20 @@ void Router::localRoute(const Input::Processed::Net *NetPtr) {
     unsigned long long L1 = Decode1[2] + 1, L2 = Decode2[2] + 1;
     Routes.emplace_back(R1, L1, C1, R2, L2, C2, NetPtr);
   }
+  std::cerr << Cost << '\n'; // Test
   GridManagerPtr->addNet(NetPtr, std::move(Routes));
 }
 
 void Router::route() {
-  // TODO
+  std::vector<const Input::Processed::Net *> NetPtrs;
+  for (const auto &NetRoute : GridManagerPtr->getNetRoutes()) {
+    NetPtrs.emplace_back(NetRoute.first);
+  }
+  sort(NetPtrs.begin(), NetPtrs.end(), netCmp);
+  for (auto NetPtr : NetPtrs) {
+    GridManagerPtr->removeNet(NetPtr);
+    localRoute(NetPtr);
+  }
 }
 
 } // namespace Router
