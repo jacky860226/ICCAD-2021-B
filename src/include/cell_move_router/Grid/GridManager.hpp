@@ -23,6 +23,8 @@ private:
                      std::unordered_set<unsigned long long>>
       CellVoltageArea;
 
+  std::vector<Input::Processed::Net *> NetPtrs;
+
   unsigned long long coordinateTrans(int R, int C, int L) const;
   std::tuple<int, int, int> coordinateInv(unsigned long long Coordinate) const;
 
@@ -40,6 +42,11 @@ public:
   }
   const CellGrid &getCellGrid(int R, int C) const {
     return CellGrids.at(coordinateTrans(R, C, 1));
+  }
+  std::unordered_map<const Input::Processed::Net *,
+                     std::pair<std::vector<Input::Processed::Route>, unsigned>>
+      &getNetRoutes() {
+    return NetRoutes;
   }
 };
 } // namespace Grid

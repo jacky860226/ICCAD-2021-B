@@ -9,8 +9,8 @@ class Router {
 
   const std::vector<double> LayerFactor;
 
-  static bool netCmp(const Input::Processed::Net &,
-                     const Input::Processed::Net &);
+  static bool netCmp(const Input::Processed::Net *,
+                     const Input::Processed::Net *);
 
   void localRoute(const Input::Processed::Net *);
 
