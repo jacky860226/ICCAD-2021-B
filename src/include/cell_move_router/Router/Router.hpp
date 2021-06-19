@@ -14,17 +14,20 @@ class Router {
 
   void localRoute(const Input::Processed::Net *);
 
-  std::vector<double> buildLayerFactor() {
+  std::vector<double> buildLayerFactor(Grid::GridManager *GridManagerPtr) {
     auto Layers = GridManagerPtr->getInputPtr()->getLayers();
     std::vector<double> Ret(Layers.size() + 1);
-    for (const auto &Layer : Layers)
+    for (const auto &Layer : Layers) {
+      assert(Layer.getIdx() < Ret.size());
       Ret.at(Layer.getIdx()) = Layer.getPowerFactor();
-    return LayerFactor;
+    }
+    return Ret;
   }
 
 public:
   Router(Grid::GridManager *GridManagerPtr)
-      : GridManagerPtr(GridManagerPtr), LayerFactor(buildLayerFactor()) {}
+      : GridManagerPtr(GridManagerPtr),
+        LayerFactor(buildLayerFactor(GridManagerPtr)) {}
 
   void route();
 };

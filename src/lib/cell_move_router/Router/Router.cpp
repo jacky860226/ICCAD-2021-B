@@ -116,7 +116,7 @@ void Router::localRoute(const Input::Processed::Net *NetPtr) {
     unsigned long long R1 = Decode1[0] + MinR, R2 = Decode2[0] + MinR;
     unsigned long long C1 = Decode1[1] + MinC, C2 = Decode2[1] + MinC;
     unsigned long long L1 = Decode1[2] + 1, L2 = Decode2[2] + 1;
-    Routes.emplace_back(R1, L1, C1, R2, L2, C2, NetPtr);
+    Routes.emplace_back(R1, C1, L1, R2, C2, L2, NetPtr);
   }
   std::cerr << Cost << '\n'; // Test
   GridManagerPtr->addNet(NetPtr, std::move(Routes));
