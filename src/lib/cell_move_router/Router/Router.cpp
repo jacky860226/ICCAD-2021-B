@@ -11,8 +11,6 @@ bool Router::netCmp(const Input::Processed::Net *A,
 
 void Router::localRoute(const Input::Processed::Net *NetPtr) {
 
-  // std::cerr << "Route: " << NetPtr->getNetName() << "\n";
-
   auto MinRoutingLayConstraint = NetPtr->getMinRoutingLayConstraint();
   int MinLayerIdx = MinRoutingLayConstraint->getIdx();
 
@@ -101,7 +99,6 @@ void Router::localRoute(const Input::Processed::Net *NetPtr) {
     int Row = Pin.getInst()->getGGridRowIdx();
     int Col = Pin.getInst()->getGGridColIdx();
     int Layer = Pin.getMasterPin()->getPinLayer()->getIdx();
-    // std::cerr << Row << ", " << Col << ", " << Layer << "\n";
     size_t Coord = Codec.encode({(unsigned long long)(Row - MinR),
                                  (unsigned long long)(Col - MinC),
                                  (unsigned long long)(Layer - 1)});
@@ -117,21 +114,16 @@ void Router::localRoute(const Input::Processed::Net *NetPtr) {
   steiner_tree::Solver<double> solver(G);
   auto Res = solver.solve(Terminals);
 
-  double Cost = 0; // Test
   std::vector<Input::Processed::Route> Routes;
   for (auto &EdgeIdx : *Res) {
     auto &Edge = G.getEdge(EdgeIdx);
-    Cost += Edge.cost; // Test
     auto Decode1 = Codec.decode(Edge.v1);
     auto Decode2 = Codec.decode(Edge.v2);
     unsigned long long R1 = Decode1[0] + MinR, R2 = Decode2[0] + MinR;
     unsigned long long C1 = Decode1[1] + MinC, C2 = Decode2[1] + MinC;
     unsigned long long L1 = Decode1[2] + 1, L2 = Decode2[2] + 1;
     Routes.emplace_back(R1, C1, L1, R2, C2, L2, NetPtr);
-    // std::cerr << R1 << " " << C1 << " " << L1 << " " << R2 << " " << C2 << "
-    // " << L2 << "\n";
   }
-  // std::cerr << Cost << '\n'; // Test
   GridManagerPtr->addNet(NetPtr, std::move(Routes));
 }
 

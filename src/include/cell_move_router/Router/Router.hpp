@@ -20,7 +20,6 @@ class Router {
     auto Layers = GridManagerPtr->getInputPtr()->getLayers();
     std::vector<double> Ret(Layers.size() + 1);
     for (const auto &Layer : Layers) {
-      assert(Layer.getIdx() < Ret.size());
       Ret.at(Layer.getIdx()) = Layer.getPowerFactor();
     }
     return Ret;
@@ -30,7 +29,6 @@ class Router {
     auto Layers = GridManagerPtr->getInputPtr()->getLayers();
     std::vector<char> Ret(Layers.size() + 1);
     for (const auto &Layer : Layers) {
-      assert(Layer.getIdx() < Ret.size());
       Ret.at(Layer.getIdx()) = Layer.getRoutingDir();
     }
     return Ret;
