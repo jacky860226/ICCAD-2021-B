@@ -3,7 +3,7 @@ GGridBoundaryIdx 1 1 5 5
 NumLayer 3
 Lay M1 1 H 10 1.2
 Lay M2 2 V 8 1.0
-Lay M3 3 H 0.8
+Lay M3 3 H 8 0.8
 NumNonDefaultSupplyGGrid 3
 2 2 1 +3
 1 2 3 -2
