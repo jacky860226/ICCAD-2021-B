@@ -36,6 +36,8 @@ endif
 
 test: $(TARGET)
 	@echo test on case$(TEST_CASE_ID)
+	./$(TARGET) benchmark/case$(TEST_CASE_ID).txt evaluator/output_$(TEST_CASE_ID).txt
+	./evaluator/evaluator benchmark/case$(TEST_CASE_ID).txt evaluator/output_$(TEST_CASE_ID).txt
 
 .PHONY: all clean test
 -include $(DEPS)
