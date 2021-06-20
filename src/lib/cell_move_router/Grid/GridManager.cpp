@@ -73,7 +73,7 @@ void GridManager::addNet(const Input::Processed::Net *Net,
     for (int R = Route.getSRowIdx(); R <= Route.getERowIdx(); ++R) {
       for (int C = Route.getSColIdx(); C <= Route.getEColIdx(); ++C) {
         for (int L = Route.getSLayIdx(); L <= Route.getELayIdx(); ++L) {
-          auto Coordinate = coordinateTrans(R, C, L); // Bug
+          auto Coordinate = coordinateTrans(R, C, L);
           // assert(Coordinate < Grids.size());
           auto &Grid = Grids.at(Coordinate);
           if (Grid.getNetSet().count(Net))
