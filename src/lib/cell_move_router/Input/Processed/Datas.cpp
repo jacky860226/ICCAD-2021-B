@@ -95,12 +95,12 @@ void VoltageArea::to_ostream(std::ostream &out) const {
   RawVoltageArea->to_ostream(out);
 }
 
-Route::Route(const int SRowIdx, const int SColIdx, const int SLayIdx,
-             const int ERowIdx, const int EColIdx, const int ELayIdx,
+Route::Route(const int _SRowIdx, const int _SColIdx, const int _SLayIdx,
+             const int _ERowIdx, const int _EColIdx, const int _ELayIdx,
              const Net *NetPtr)
-    : SRowIdx(std::min(SRowIdx, ERowIdx)), SColIdx(std::min(SColIdx, ERowIdx)),
-      SLayIdx(std::min(SLayIdx, ELayIdx)), ERowIdx(std::max(SRowIdx, ERowIdx)),
-      EColIdx(std::max(SColIdx, EColIdx)), ELayIdx(std::max(SLayIdx, ELayIdx)),
+    : SRowIdx(std::min(_SRowIdx, _ERowIdx)), SColIdx(std::min(_SColIdx, _EColIdx)),
+      SLayIdx(std::min(_SLayIdx, _ELayIdx)), ERowIdx(std::max(_SRowIdx, _ERowIdx)),
+      EColIdx(std::max(_SColIdx, _EColIdx)), ELayIdx(std::max(_SLayIdx, _ELayIdx)),
       NetPtr(NetPtr) {}
 
 Route::Route(const Raw::Route *RawRoute,

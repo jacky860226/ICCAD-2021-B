@@ -11,6 +11,8 @@ bool Router::netCmp(const Input::Processed::Net *A,
 
 void Router::localRoute(const Input::Processed::Net *NetPtr) {
 
+  // std::cerr << "Route: " << NetPtr->getNetName() << "\n";
+
   auto MinRoutingLayConstraint = NetPtr->getMinRoutingLayConstraint();
   int MinLayerIdx = MinRoutingLayConstraint->getIdx();
 
@@ -55,14 +57,16 @@ void Router::localRoute(const Input::Processed::Net *NetPtr) {
         size_t Coord = Codec.encode({(unsigned long long)(R - MinR),
                                      (unsigned long long)(C - MinC),
                                      (unsigned long long)(L - 1)});
-        if (C != MaxC && GridManagerPtr->getGrid(R, C + 1, L).getSupply() > 0) {
+        if (C != MaxC && GridManagerPtr->getGrid(R, C + 1, L).getSupply() > 0 &&
+            LayerDir.at(L) == 'H') {
           size_t NeiCoord = Codec.encode({(unsigned long long)(R - MinR),
                                           (unsigned long long)(C - MinC + 1),
                                           (unsigned long long)(L - 1)});
           double Weight = LayerFactor.at(L) * 2;
           G.addEdge(Coord, NeiCoord, Weight);
         }
-        if (R != MaxR && GridManagerPtr->getGrid(R + 1, C, L).getSupply() > 0) {
+        if (R != MaxR && GridManagerPtr->getGrid(R + 1, C, L).getSupply() > 0 &&
+            LayerDir.at(L) == 'V') {
           size_t NeiCoord = Codec.encode({(unsigned long long)(R - MinR + 1),
                                           (unsigned long long)(C - MinC),
                                           (unsigned long long)(L - 1)});
@@ -97,10 +101,17 @@ void Router::localRoute(const Input::Processed::Net *NetPtr) {
     int Row = Pin.getInst()->getGGridRowIdx();
     int Col = Pin.getInst()->getGGridColIdx();
     int Layer = Pin.getMasterPin()->getPinLayer()->getIdx();
+    // std::cerr << Row << ", " << Col << ", " << Layer << "\n";
     size_t Coord = Codec.encode({(unsigned long long)(Row - MinR),
                                  (unsigned long long)(Col - MinC),
                                  (unsigned long long)(Layer - 1)});
     Terminals.emplace(Coord);
+    if (Layer < MinLayerIdx) {
+      size_t Coord = Codec.encode({(unsigned long long)(Row - MinR),
+                                   (unsigned long long)(Col - MinC),
+                                   (unsigned long long)(MinLayerIdx - 1)});
+      Terminals.emplace(Coord);
+    }
   }
 
   steiner_tree::Solver<double> solver(G);
@@ -117,6 +128,8 @@ void Router::localRoute(const Input::Processed::Net *NetPtr) {
     unsigned long long C1 = Decode1[1] + MinC, C2 = Decode2[1] + MinC;
     unsigned long long L1 = Decode1[2] + 1, L2 = Decode2[2] + 1;
     Routes.emplace_back(R1, C1, L1, R2, C2, L2, NetPtr);
+    // std::cerr << R1 << " " << C1 << " " << L1 << " " << R2 << " " << C2 << "
+    // " << L2 << "\n";
   }
   // std::cerr << Cost << '\n'; // Test
   GridManagerPtr->addNet(NetPtr, std::move(Routes));

@@ -38,6 +38,7 @@ int main(int argc, char **argv) {
   auto Timer = GlobalTimer::getInstance();
   // std::cerr << Timer->getDuration<>().count() / 1e9 << " seconds\n";
   if (Timer->overTime()) {
+    std::cerr << Timer->getDuration<>().count() / 1e9 << " seconds\n";
     std::cerr << "overtime!!\n";
   }
   return 0;
