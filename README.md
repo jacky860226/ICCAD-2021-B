@@ -38,4 +38,10 @@ $ ./cell_move_router <input.txt> [<output.txt>]
 If there is no `<output.txt>`, it will use standard output.
 
 ## 3. How to test and evaluate
-TODO
+~~~
+$ make test $(TEST_CASE_ID)
+~~~
+Example:
+~~~
+$ make test 1 && make test 2
+~~~
