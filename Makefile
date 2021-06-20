@@ -1,7 +1,7 @@
 CXX := g++
 TARGET := cell_move_router
 OPENMPFLAG := 
-CXXFLAGS := -std=c++11 -O3 -Wall -Wextra
+CXXFLAGS := -std=c++11 -O3 -Wall -Wextra -static
 INCLUDE := src/include
 SRC_DIRS := src\
 			src/lib\
