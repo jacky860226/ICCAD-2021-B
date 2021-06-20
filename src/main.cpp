@@ -19,20 +19,24 @@ int main(int argc, char **argv) {
   auto ProcessedInput =
       cell_move_router::Input::Processed::Input::createInput(std::move(Input));
 
-  if (ProcessedInput != nullptr) { // This is for test
-    auto OutputStreamPtr =
-        cell_move_router::OutputStreamCreator().createOutputStream(argc, argv);
-    ProcessedInput->to_ostream(*OutputStreamPtr);
-  }
+  // if (ProcessedInput != nullptr) { // This is for test
+  //   auto OutputStreamPtr =
+  //       cell_move_router::OutputStreamCreator().createOutputStream(argc,
+  //       argv);
+  //   ProcessedInput->to_ostream(*OutputStreamPtr);
+  // }
 
   cell_move_router::Grid::GridManager GridManager(ProcessedInput.get());
 
   cell_move_router::Router::Router Router(&GridManager);
-
   Router.route();
 
+  auto OutputStreamPtr =
+      cell_move_router::OutputStreamCreator().createOutputStream(argc, argv);
+  GridManager.output(*OutputStreamPtr);
+
   auto Timer = GlobalTimer::getInstance();
-  std::cerr << Timer->getDuration<>().count() / 1e9 << " seconds\n";
+  // std::cerr << Timer->getDuration<>().count() / 1e9 << " seconds\n";
   if (Timer->overTime()) {
     std::cerr << "overtime!!\n";
   }

@@ -3,6 +3,7 @@
 #include "cell_move_router/Grid/CellGrid.hpp"
 #include "cell_move_router/Grid/Grid.hpp"
 #include "cell_move_router/Input/Processed/Input.hpp"
+#include <ostream>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
@@ -47,6 +48,19 @@ public:
                      std::pair<std::vector<Input::Processed::Route>, unsigned>>
       &getNetRoutes() {
     return NetRoutes;
+  }
+  void output(std::ostream &out) { // For alpha test
+    out << "NumMovedCellInst 0\n";
+    int NumRoute = 0;
+    for (const auto &NetRoute : NetRoutes) {
+      NumRoute += NetRoute.second.first.size();
+    }
+    out << "NumRoutes " << NumRoute << '\n';
+    for (const auto &NetRoute : NetRoutes) {
+      for (const auto Route : NetRoute.second.first) {
+        Route.to_ostream(out);
+      }
+    }
   }
 };
 } // namespace Grid
