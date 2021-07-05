@@ -181,6 +181,7 @@ std::vector<Input::Processed::Route> GraphApproxRouter::singleNetRoute(
 bool netCmp(const Input::Processed::Net *A, const Input::Processed::Net *B) {
   return A->getWeight() < B->getWeight();
 }
+
 void GraphApproxRouter::rerouteAll() {
   std::vector<const Input::Processed::Net *> NetPtrs;
   for (const auto &NetRoute : getGridManager()->getNetRoutes()) {
