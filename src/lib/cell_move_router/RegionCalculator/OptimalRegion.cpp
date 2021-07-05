@@ -1,9 +1,9 @@
 #include <algorithm>
-#include <cell_move_router/RegionCalculator/RegionCalculator.hpp>
+#include <cell_move_router/RegionCalculator/OptimalRegion.hpp>
 namespace cell_move_router {
 namespace RegionCalculator {
 
-std::pair<int, int> RegionCalculator::getMedium(std::vector<int> &V) {
+std::pair<int, int> OptimalRegion::getMedium(std::vector<int> &V) {
   int L = (V.size() - 1) >> 1;
   int R = V.size() >> 1;
   std::nth_element(V.begin(), V.begin() + R, V.end());
@@ -12,7 +12,7 @@ std::pair<int, int> RegionCalculator::getMedium(std::vector<int> &V) {
 }
 
 std::tuple<int, int, int, int>
-RegionCalculator::getRegion(const Input::Processed::Net *NetPtr) {
+OptimalRegion::getRegion(const Input::Processed::Net *NetPtr) {
   std::vector<int> Rows, Cols;
   for (const auto &Pin : NetPtr->getPins()) {
     Rows.emplace_back(Pin.getInst()->getGGridRowIdx());
@@ -20,8 +20,8 @@ RegionCalculator::getRegion(const Input::Processed::Net *NetPtr) {
   }
   auto RowCoord = getMedium(Rows);
   auto ColCoord = getMedium(Cols);
-  return make_tuple(RowCoord.first, RowCoord.second, ColCoord.first,
-                    ColCoord.second);
+  return std::make_tuple(RowCoord.first, RowCoord.second, ColCoord.first,
+                         ColCoord.second);
 }
 
 } // namespace RegionCalculator
