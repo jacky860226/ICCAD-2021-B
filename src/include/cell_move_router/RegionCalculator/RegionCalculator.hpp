@@ -9,6 +9,8 @@ public:
   // return {BeginRowIdx, EndRowIdx, BeginColIdx, EndColIdx}
   virtual std::tuple<int, int, int, int>
   getRegion(const Input::Processed::Net *Net) = 0;
+  virtual std::tuple<int, int, int, int>
+  getWeightedRegion(const Input::Processed::Net *Net) = 0;
 };
 
 } // namespace RegionCalculator
