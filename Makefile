@@ -9,7 +9,8 @@ SRC_DIRS := src\
 			src/lib/cell_move_router/Input/Raw\
 			src/lib/cell_move_router/Input/Processed\
 			src/lib/cell_move_router/Grid\
-			src/lib/cell_move_router/Router
+			src/lib/cell_move_router/Router\
+			src/lib/cell_move_router/RegionCalculator
 SRCS := $(wildcard $(SRC_DIRS:=/*.cpp))
 OBJS := $(SRCS:.cpp=.o)
 DEPS = $(OBJS:.o=.d)
