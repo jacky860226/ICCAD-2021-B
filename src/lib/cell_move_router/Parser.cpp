@@ -211,7 +211,7 @@ std::vector<Input::Raw::Route> Parser::parseRoutes(std::istream &input) {
 }
 
 std::unique_ptr<Input::Raw::Input> Parser::parse(std::istream &input) {
-  unsigned MaxCellMove;
+  unsigned MaxCellMove = 0;
   int RowBeginIdx = 0, ColBeginIdx = 0, RowEndIdx = 0, ColEndIdx = 0;
   std::vector<Input::Raw::Layer> Layers;
   std::vector<Input::Raw::NonDefaultSupplyGGrid> NonDefaultSupplyGGrids;
