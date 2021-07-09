@@ -7,13 +7,14 @@ FLUTE_DIR := src/include/Third/Flute3
 INCLUDE := src/include
 SRC_DIRS := src\
 			src/lib\
+			src/lib/FluteWrapper\
 			src/lib/cell_move_router\
 			src/lib/cell_move_router/Input/Raw\
 			src/lib/cell_move_router/Input/Processed\
 			src/lib/cell_move_router/Grid\
 			src/lib/cell_move_router/Router
 SRCS := $(wildcard $(SRC_DIRS:=/*.cpp))
-OBJS := $(SRCS:.cpp=.o) $(FLUTE_DIR)/flute.o
+OBJS := $(SRCS:.cpp=.o) $(FLUTE_DIR)/build/flute.o
 DEPS = $(OBJS:.o=.d)
 
 ifndef BOOST_LIBRARY_PATH
@@ -25,7 +26,8 @@ all: $(TARGET)
 $(TARGET): $(OBJS)
 	$(CXX) -o $@ $^ -lpthread $(OPENMPFLAG)
 
-$(FLUTE_DIR)/flute.o: $(FLUTE_DIR)/flute.cpp
+$(FLUTE_DIR)/build/flute.o: $(FLUTE_DIR)/flute.cpp
+	mkdir -p $(FLUTE_DIR)/build
 	$(CXX) $(CXXFLAGS) -w -isystem $(FLUTE_DIR) -MMD -c $< -o $@
 
 %.o: %.cpp
