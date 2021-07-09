@@ -1,3 +1,6 @@
 [submodule "src/include/Third/SteinerTree2"]
 	path = src/include/Third/SteinerTree2
 	url = https://github.com/jacky860226/steiner-tree-2-approximation.git
+[submodule "src/include/Third/Flute3"]
+	path = src/include/Third/Flute3
+	url = https://github.com/The-OpenROAD-Project-Attic/flute

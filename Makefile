@@ -1,7 +1,9 @@
 CXX := g++
 TARGET := cell_move_router
 OPENMPFLAG := 
-CXXFLAGS := -std=c++11 -O3 -Wall -Wextra -static -static-libstdc++ -static-libgcc
+CXXFLAGS := -std=c++11 -O3 -static -static-libstdc++ -static-libgcc
+WARNINGFLAGS := -Wall -Wextra
+FLUTE_DIR := src/include/Third/Flute3
 INCLUDE := src/include
 SRC_DIRS := src\
 			src/lib\
@@ -11,7 +13,7 @@ SRC_DIRS := src\
 			src/lib/cell_move_router/Grid\
 			src/lib/cell_move_router/Router
 SRCS := $(wildcard $(SRC_DIRS:=/*.cpp))
-OBJS := $(SRCS:.cpp=.o)
+OBJS := $(SRCS:.cpp=.o) $(FLUTE_DIR)/flute.o
 DEPS = $(OBJS:.o=.d)
 
 ifndef BOOST_LIBRARY_PATH
@@ -23,8 +25,11 @@ all: $(TARGET)
 $(TARGET): $(OBJS)
 	$(CXX) -o $@ $^ -lpthread $(OPENMPFLAG)
 
+$(FLUTE_DIR)/flute.o: $(FLUTE_DIR)/flute.cpp
+	$(CXX) $(CXXFLAGS) -w -isystem $(FLUTE_DIR) -MMD -c $< -o $@
+
 %.o: %.cpp
-	$(CXX) $(CXXFLAGS) $(OPENMPFLAG) -I $(INCLUDE) -isystem $(BOOST_LIBRARY_PATH) -MMD -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(WARNINGFLAGS) $(OPENMPFLAG) -I $(INCLUDE) -isystem $(BOOST_LIBRARY_PATH) -MMD -c $< -o $@
 
 clean:
 	rm -rf $(TARGET) $(OBJS) $(DEPS)
