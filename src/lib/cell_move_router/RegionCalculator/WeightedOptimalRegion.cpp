@@ -3,8 +3,8 @@
 namespace cell_move_router {
 namespace RegionCalculator {
 
-int WeightedOptimalRegion::weightElement(std::vector<std::pair<int, double>> &V,
-                                         const int L, const int R, double W) {
+int WeightedOptimalRegion::weightElement(std::vector<std::pair<int, long long>> &V,
+                                         const int L, const int R, long long W) {
   int Pivot = rand() % (R - L) + L;
   std::swap(V[Pivot], V[L]);
   int j = L;
@@ -13,7 +13,7 @@ int WeightedOptimalRegion::weightElement(std::vector<std::pair<int, double>> &V,
       std::swap(V[++j], V[i]);
   }
   std::swap(V[j], V[L]);
-  double Sum = 0;
+  long long Sum = 0;
   for (int i = L; i < j; ++i)
     Sum += V[i].second;
   if (Sum > W)
@@ -25,19 +25,19 @@ int WeightedOptimalRegion::weightElement(std::vector<std::pair<int, double>> &V,
 }
 
 std::pair<int, int> WeightedOptimalRegion::getWeightedMedium(
-    std::vector<std::pair<int, double>> &V) {
-  double Sum = 0;
+    std::vector<std::pair<int, long long>> &V) {
+  long long Sum = 0;
   for (const auto &P : V)
     Sum += P.second;
-  int Ret = weightElement(V, 0, V.size(), Sum * 0.5);
+  int Ret = weightElement(V, 0, V.size(), Sum / 2);
   return {Ret, Ret};
 }
 
 std::tuple<int, int, int, int>
 WeightedOptimalRegion::getRegion(const Input::Processed::Net *Net) {
-  std::vector<std::pair<int, double>> Rows, Cols;
+  std::vector<std::pair<int, long long>> Rows, Cols;
   for (const auto &Pin : Net->getPins()) {
-    double Weight = Pin.getMasterPin()->getPinLayer()->getPowerFactor();
+    long long Weight = Pin.getMasterPin()->getPinLayer()->getPowerFactor();
     Rows.emplace_back(Pin.getInst()->getGGridRowIdx(), Weight);
     Cols.emplace_back(Pin.getInst()->getGGridColIdx(), Weight);
   }
