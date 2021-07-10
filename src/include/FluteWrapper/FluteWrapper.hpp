@@ -16,6 +16,8 @@ struct Tree {
   const int Degree;
   Tree(std::vector<Branch> &&Branchs, int Length, int Degree)
       : Branchs(std::move(Branchs)), Length(Length), Degree(Degree) {}
+  Tree(Tree &&o)
+      : Branchs(std::move(o.Branchs)), Length(o.Length), Degree(o.Degree) {}
 };
 
 class FluteWrapper {
