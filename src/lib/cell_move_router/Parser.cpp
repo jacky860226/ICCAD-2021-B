@@ -30,7 +30,7 @@ std::vector<Input::Raw::Layer> Parser::parseLayers(std::istream &input) {
     input >> LayerName >> Idx >> RoutingDir >> DefaultSupplyOfOneGGrid >>
         PowerFactor;
     Layers.emplace_back(std::move(LayerName), Idx, RoutingDir,
-                        DefaultSupplyOfOneGGrid, PowerFactor);
+                        DefaultSupplyOfOneGGrid, PowerFactor * 100);
   }
   return Layers;
 }
@@ -152,7 +152,7 @@ std::vector<Input::Raw::Net> Parser::parseNets(std::istream &input) {
       Pins.emplace_back(std::move(InstName), std::move(MasterPinName));
     }
     Nets.emplace_back(std::move(NetName), std::move(Pins),
-                      std::move(MinRoutingLayConstraint), Weight);
+                      std::move(MinRoutingLayConstraint), Weight * 100);
   }
   return Nets;
 }

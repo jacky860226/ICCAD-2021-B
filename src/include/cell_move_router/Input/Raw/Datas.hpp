@@ -11,16 +11,16 @@ class Layer : Util::Outputable {
   const int Idx;
   const char RoutingDir;
   const int DefaultSupplyOfOneGGrid;
-  const double PowerFactor;
+  const long long PowerFactor;
 
 public:
   Layer(std::string &&LayerName, const int Idx, const char RoutingDir,
-        const int DefaultSupplyOfOneGGrid, const double PowerFactor);
+        const int DefaultSupplyOfOneGGrid, const long long PowerFactor);
   const std::string &getLayerName() const { return LayerName; }
   int getIdx() const { return Idx; }
   char getRoutingDir() const { return RoutingDir; }
   int getDefaultSupplyOfOneGGrid() const { return DefaultSupplyOfOneGGrid; }
-  double getPowerFactor() const { return PowerFactor; }
+  long long getPowerFactor() const { return PowerFactor; }
   void to_ostream(std::ostream &out) const override;
 };
 class NonDefaultSupplyGGrid : Util::Outputable {
@@ -114,18 +114,18 @@ private:
   const std::string NetName;
   const std::vector<Pin> Pins;
   const std::string MinRoutingLayConstraint;
-  const double Weight;
+  const long long Weight;
 
 public:
   Net(std::string &&NetName, std::vector<Pin> &&Pins,
-      std::string &&MinRoutingLayConstraint, const double Weight);
+      std::string &&MinRoutingLayConstraint, const long long Weight);
   const std::string &getNetName() const { return NetName; }
   int getNumPins() const { return Pins.size(); }
   const std::vector<Pin> &getPins() const { return Pins; }
   const std::string &getMinRoutingLayConstraint() const {
     return MinRoutingLayConstraint;
   }
-  double getWeight() const { return Weight; }
+  long long getWeight() const { return Weight; }
   void to_ostream(std::ostream &out) const override;
 };
 

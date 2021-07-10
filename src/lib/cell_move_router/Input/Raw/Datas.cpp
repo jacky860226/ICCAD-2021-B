@@ -4,7 +4,7 @@ namespace Input {
 namespace Raw {
 
 Layer::Layer(std::string &&LayerName, const int Idx, const char RoutingDir,
-             const int DefaultSupplyOfOneGGrid, const double PowerFactor)
+             const int DefaultSupplyOfOneGGrid, const long long PowerFactor)
     : LayerName(LayerName), Idx(Idx), RoutingDir(RoutingDir),
       DefaultSupplyOfOneGGrid(DefaultSupplyOfOneGGrid),
       PowerFactor(PowerFactor) {}
@@ -76,7 +76,7 @@ void CellInst::to_ostream(std::ostream &out) const {
 }
 
 Net::Net(std::string &&NetName, std::vector<Net::Pin> &&Pins,
-         std::string &&MinRoutingLayConstraint, const double Weight)
+         std::string &&MinRoutingLayConstraint, const long long Weight)
     : NetName(NetName), Pins(Pins),
       MinRoutingLayConstraint(MinRoutingLayConstraint), Weight(Weight) {}
 
