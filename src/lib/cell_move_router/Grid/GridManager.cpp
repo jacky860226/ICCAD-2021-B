@@ -10,8 +10,8 @@ GridManager::GridManager(const Input::Processed::Input *InputPtr)
   for (auto Layer : InputPtr->getLayers()) {
     for (size_t C = 0; C < Codec.at(1); ++C) {
       for (size_t R = 0; R < Codec.at(0); ++R) {
-        // assert(R < Codec.at(0) && C < Codec.at(1) && Layer.getIdx() - 1 <
-        // Codec.at(2));
+        assert(R < Codec.at(0) && C < Codec.at(1) &&
+               Layer.getIdx() - 1 < int(Codec.at(2)));
         auto Coordinate = Codec.encode({R, C, (unsigned)Layer.getIdx() - 1});
         Grids.emplace_back(Coordinate, Layer.getDefaultSupplyOfOneGGrid());
       }
@@ -20,7 +20,7 @@ GridManager::GridManager(const Input::Processed::Input *InputPtr)
   for (auto G : InputPtr->getNonDefaultSupplyGGrids()) {
     auto Coordinate =
         coordinateTrans(G.getRowIdx(), G.getColIdx(), G.getLayIdx());
-    // assert(Coordinate < Grids.size());
+    assert(Coordinate < Grids.size());
     Grids.at(Coordinate).addCapacity(G.getIncrOrDecrValue());
   }
   CellGrids.resize(InputPtr->getRowSize() * InputPtr->getColsize());
@@ -52,8 +52,7 @@ unsigned long long GridManager::coordinateTrans(int R, int C, int L) const {
   unsigned Row = R - InputPtr->getRowBeginIdx();
   unsigned Col = C - InputPtr->getColBeginIdx();
   unsigned Layer = L - 1;
-  // assert(Row < Codec.at(0) && Col < Codec.at(1) && Layer < Codec.at(2)); //
-  // bug
+  assert(Row < Codec.at(0) && Col < Codec.at(1) && Layer < Codec.at(2));
   return Codec.encode({Row, Col, Layer});
 }
 
@@ -74,7 +73,7 @@ void GridManager::addNet(const Input::Processed::Net *Net,
       for (int C = Route.getSColIdx(); C <= Route.getEColIdx(); ++C) {
         for (int L = Route.getSLayIdx(); L <= Route.getELayIdx(); ++L) {
           auto Coordinate = coordinateTrans(R, C, L);
-          // assert(Coordinate < Grids.size());
+          assert(Coordinate < Grids.size());
           auto &Grid = Grids.at(Coordinate);
           if (Grid.getNetSet().count(Net))
             continue;
@@ -96,7 +95,7 @@ void GridManager::removeNet(const Input::Processed::Net *Net) {
       for (int C = Route.getSColIdx(); C <= Route.getEColIdx(); ++C) {
         for (int L = Route.getSLayIdx(); L <= Route.getELayIdx(); ++L) {
           auto Coordinate = coordinateTrans(R, C, L);
-          // assert(Coordinate < Grids.size());
+          assert(Coordinate < Grids.size());
           auto &Grid = Grids.at(Coordinate);
           Grid.removeNet(Net);
         }
