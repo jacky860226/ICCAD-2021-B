@@ -78,6 +78,10 @@ void GridManager::addNet(const Input::Processed::Net *Net,
           if (Grid.getNetSet().count(Net))
             continue;
           Grid.addNet(Net);
+          Grid.addDemand(1);
+          if (Grid.isOverflow()) {
+            std::cerr << "Overflow\n";
+          }
           Len++;
         }
       }
@@ -97,7 +101,10 @@ void GridManager::removeNet(const Input::Processed::Net *Net) {
           auto Coordinate = coordinateTrans(R, C, L);
           assert(Coordinate < Grids.size());
           auto &Grid = Grids.at(Coordinate);
+          if (!Grid.getNetSet().count(Net))
+            continue;
           Grid.removeNet(Net);
+          Grid.addDemand(-1);
         }
       }
     }
@@ -108,14 +115,13 @@ void GridManager::addCell(const Input::Processed::CellInst *CellInst,
                           const int Row, const int Col) {
   auto Coordinate = coordinateTrans(Row, Col, 1);
   CellCoordinate.emplace(CellInst, Coordinate);
-  // assert(CellGrids.count(Coordinate) == 0);
   CellGrids.at(Coordinate).emplace(CellInst);
   for (const auto &BlkgPair : CellInst->getMasterCell()->getBlkgMap()) {
     auto &Blkg = BlkgPair.second;
     int LayerIdx = Blkg.getBlockageLayer()->getIdx();
     int Demand = Blkg.getDemand();
     auto BlkgCooridnate = coordinateTrans(Row, Col, LayerIdx);
-    // assert(BlkgCooridnate < Grids.size());
+    assert(BlkgCooridnate < Grids.size());
     Grids.at(BlkgCooridnate).addDemand(Demand);
   }
 }
@@ -132,7 +138,7 @@ void GridManager::removeCell(const Input::Processed::CellInst *CellInst) {
     int LayerIdx = Blkg.getBlockageLayer()->getIdx();
     int Demand = Blkg.getDemand();
     auto BlkgCooridnate = coordinateTrans(Row, Col, LayerIdx);
-    // assert(BlkgCooridnate < Grids.size());
+    assert(BlkgCooridnate < Grids.size());
     Grids.at(BlkgCooridnate).addDemand(-Demand);
   }
 }
