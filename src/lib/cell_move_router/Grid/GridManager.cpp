@@ -1,5 +1,4 @@
 #include "cell_move_router/Grid/GridManager.hpp"
-#include <iostream> // Debug
 #include <unordered_map>
 namespace cell_move_router {
 namespace Grid {
@@ -30,6 +29,9 @@ GridManager::GridManager(const Input::Processed::Input *InputPtr)
   std::unordered_map<const Input::Processed::Net *,
                      std::vector<Input::Processed::Route>>
       RoutesNet;
+  for (auto &Net : InputPtr->getNets()) {
+    RoutesNet[&Net].clear();
+  }
   for (auto Route : InputPtr->getRoutes()) {
     RoutesNet[Route.getNetPtr()].emplace_back(Route);
   }
@@ -67,22 +69,29 @@ GridManager::coordinateInv(unsigned long long Coordinate) const {
 
 void GridManager::addNet(const Input::Processed::Net *Net,
                          std::vector<Input::Processed::Route> &&Routes) {
+  auto tryAddNet = [&](int R, int C, int L) -> bool {
+    auto Coordinate = coordinateTrans(R, C, L);
+    assert(Coordinate < Grids.size());
+    auto &Grid = Grids.at(Coordinate);
+    if (!Grid.addNet(Net))
+      return false;
+    Grid.addDemand(1);
+    return true;
+  };
+  for (auto &Pin : Net->getPins()) {
+    auto CellPtr = Pin.getInst();
+    int R = CellPtr->getGGridRowIdx();
+    int C = CellPtr->getGGridColIdx();
+    int L = Pin.getMasterPin()->getPinLayer()->getIdx();
+    tryAddNet(R, C, L);
+  }
   unsigned Len = 0;
   for (auto &Route : Routes) {
     for (int R = Route.getSRowIdx(); R <= Route.getERowIdx(); ++R) {
       for (int C = Route.getSColIdx(); C <= Route.getEColIdx(); ++C) {
         for (int L = Route.getSLayIdx(); L <= Route.getELayIdx(); ++L) {
-          auto Coordinate = coordinateTrans(R, C, L);
-          assert(Coordinate < Grids.size());
-          auto &Grid = Grids.at(Coordinate);
-          if (Grid.getNetSet().count(Net))
-            continue;
-          Grid.addNet(Net);
-          Grid.addDemand(1);
-          if (Grid.isOverflow()) {
-            std::cerr << "Overflow\n";
-          }
-          Len++;
+          if (tryAddNet(R, C, L))
+            Len++;
         }
       }
     }
@@ -91,24 +100,33 @@ void GridManager::addNet(const Input::Processed::Net *Net,
 }
 
 void GridManager::removeNet(const Input::Processed::Net *Net) {
+  auto tryRemoveNet = [&](int R, int C, int L) {
+    auto Coordinate = coordinateTrans(R, C, L);
+    assert(Coordinate < Grids.size());
+    auto &Grid = Grids.at(Coordinate);
+    if (!Grid.removeNet(Net))
+      return;
+    Grid.addDemand(-1);
+  };
+  for (auto &Pin : Net->getPins()) {
+    auto CellPtr = Pin.getInst();
+    int R = CellPtr->getGGridRowIdx();
+    int C = CellPtr->getGGridColIdx();
+    int L = Pin.getMasterPin()->getPinLayer()->getIdx();
+    tryRemoveNet(R, C, L);
+  }
   auto Iter = NetRoutes.find(Net);
-  auto Routes = Iter->second.first;
-  NetRoutes.erase(Iter);
+  auto &Routes = Iter->second.first;
   for (auto &Route : Routes) {
     for (int R = Route.getSRowIdx(); R <= Route.getERowIdx(); ++R) {
       for (int C = Route.getSColIdx(); C <= Route.getEColIdx(); ++C) {
         for (int L = Route.getSLayIdx(); L <= Route.getELayIdx(); ++L) {
-          auto Coordinate = coordinateTrans(R, C, L);
-          assert(Coordinate < Grids.size());
-          auto &Grid = Grids.at(Coordinate);
-          if (!Grid.getNetSet().count(Net))
-            continue;
-          Grid.removeNet(Net);
-          Grid.addDemand(-1);
+          tryRemoveNet(R, C, L);
         }
       }
     }
   }
+  NetRoutes.erase(Iter);
 }
 
 void GridManager::addCell(const Input::Processed::CellInst *CellInst,

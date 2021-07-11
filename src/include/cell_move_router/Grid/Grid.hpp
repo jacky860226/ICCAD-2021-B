@@ -24,8 +24,19 @@ public:
   bool isOverflow() const { return getSupply() < 0; }
   void addDemand(int Val) { Demand += Val; }
   void addCapacity(int Val) { Capacity += Val; }
-  void addNet(const Input::Processed::Net *N) { NetSet.emplace(N); }
-  void removeNet(const Input::Processed::Net *N) { NetSet.erase(N); }
+  bool addNet(const Input::Processed::Net *N) {
+    if (NetSet.count(N))
+      return false;
+    NetSet.emplace(N);
+    return true;
+  }
+  bool removeNet(const Input::Processed::Net *N) {
+    auto It = NetSet.find(N);
+    if (It == NetSet.end())
+      return false;
+    NetSet.erase(It);
+    return true;
+  }
 };
 } // namespace Grid
 } // namespace cell_move_router
