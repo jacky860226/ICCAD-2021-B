@@ -103,7 +103,7 @@ public:
   const Raw::Layer *getMinRoutingLayConstraint() const {
     return MinRoutingLayConstraint;
   }
-  double getWeight() const { return RawNet->getWeight(); }
+  long long getWeight() const { return RawNet->getWeight(); }
   void to_ostream(std::ostream &out) const override;
 };
 
