@@ -13,7 +13,8 @@ SRC_DIRS := src\
 			src/lib/cell_move_router/Input/Processed\
 			src/lib/cell_move_router/Grid\
 			src/lib/cell_move_router/Router\
-			src/lib/cell_move_router/RegionCalculator
+			src/lib/cell_move_router/RegionCalculator\
+			src/lib/cell_move_router/Mover
 SRCS := $(wildcard $(SRC_DIRS:=/*.cpp))
 OBJS := $(SRCS:.cpp=.o) $(FLUTE_DIR)/build/flute.o
 DEPS = $(OBJS:.o=.d)

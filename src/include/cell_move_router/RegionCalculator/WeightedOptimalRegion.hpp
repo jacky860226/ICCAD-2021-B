@@ -5,7 +5,8 @@ namespace RegionCalculator {
 class WeightedOptimalRegion : RegionCalculator {
   int weightElement(std::vector<std::pair<int, long long>> &V, const int L,
                     const int R, long long W);
-  std::pair<int, int> getWeightedMedium(std::vector<std::pair<int, long long>> &V);
+  std::pair<int, int>
+  getWeightedMedium(std::vector<std::pair<int, long long>> &V);
 
 public:
   WeightedOptimalRegion() {}
