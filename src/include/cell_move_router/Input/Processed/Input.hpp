@@ -27,6 +27,9 @@ class Input : Util::Outputable {
   const std::vector<VoltageArea> VoltageAreas;
   const std::vector<Route> Routes;
 
+  const std::unordered_map<const CellInst *, std::vector<const Net *>>
+      RelativeNetsMap;
+
   std::unordered_map<std::string, const Raw::Layer *> CreateLayerMap();
   std::unordered_map<std::string, const MasterCell *> CreateMasterCellMap();
   std::unordered_map<std::string, const CellInst *> CreateCellInstMap();
@@ -37,6 +40,9 @@ class Input : Util::Outputable {
   std::vector<Net> CreateNets();
   std::vector<VoltageArea> CreateVoltageAreas();
   std::vector<Route> CreateRoutes();
+
+  std::unordered_map<const CellInst *, std::vector<const Net *>>
+  CreateRelativeNetsMap();
 
 public:
   Input(std::unique_ptr<Raw::Input> &&RawInput);
@@ -70,6 +76,10 @@ public:
     return VoltageAreas;
   }
   const std::vector<Route> &getRoutes() const { return Routes; }
+  const std::unordered_map<const CellInst *, std::vector<const Net *>> &
+  getRelativeNetsMap() const {
+    return RelativeNetsMap;
+  }
 };
 } // namespace Processed
 } // namespace Input
