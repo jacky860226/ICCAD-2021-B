@@ -1,4 +1,5 @@
 #pragma once
+#include "Util/BaseType.hpp"
 #include "cell_move_router/CoordinateCodec.hpp"
 #include "cell_move_router/Grid/CellGrid.hpp"
 #include "cell_move_router/Grid/Grid.hpp"
@@ -9,8 +10,7 @@
 #include <vector>
 namespace cell_move_router {
 namespace Grid {
-class GridManager {
-private:
+class GridManager : Util::Outputable {
   const Input::Processed::Input *InputPtr;
   const CoordinateCodec<unsigned long long> Codec;
   std::vector<Grid> Grids;
@@ -58,8 +58,22 @@ public:
       &getNetRoutes() {
     return NetRoutes;
   }
-  void output(std::ostream &out) { // For alpha test
-    out << "NumMovedCellInst 0\n";
+  void to_ostream(std::ostream &out) const override {
+    std::vector<const std::pair<const Input::Processed::CellInst *const,
+                                unsigned long long> *>
+        MovedCellInsts;
+    for (auto &P : CellCoordinate) {
+      if (coordinateTrans(P.first->getGGridRowIdx(), P.first->getGGridColIdx(),
+                          1) != P.second) {
+        MovedCellInsts.emplace_back(&P);
+      }
+    }
+    out << "NumMovedCellInst " << MovedCellInsts.size() << '\n';
+    for (auto P : MovedCellInsts) {
+      auto Coord = coordinateInv(P->second);
+      out << "CellInst " << P->first->getInstName() << ' ' << std::get<0>(Coord)
+          << ' ' << std::get<1>(Coord) << '\n';
+    }
     int NumRoute = 0;
     for (const auto &NetRoute : NetRoutes) {
       NumRoute += NetRoute.second.first.size();
