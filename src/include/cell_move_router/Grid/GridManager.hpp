@@ -44,6 +44,15 @@ public:
   const CellGrid &getCellGrid(int R, int C) const {
     return CellGrids.at(coordinateTrans(R, C, 1));
   }
+  std::pair<int, int>
+  getCellCoordinate(const Input::Processed::CellInst *CellInst) const {
+    auto Coord = coordinateInv(CellCoordinate.at(CellInst));
+    return {std::get<0>(Coord), std::get<1>(Coord)};
+  }
+  void setCellCoordinate(const Input::Processed::CellInst *CellInst,
+                         const int Row, const int Col) {
+    CellCoordinate.emplace(CellInst, coordinateTrans(Row, Col, 1));
+  }
   std::unordered_map<const Input::Processed::Net *,
                      std::pair<std::vector<Input::Processed::Route>, unsigned>>
       &getNetRoutes() {

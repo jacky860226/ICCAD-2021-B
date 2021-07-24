@@ -9,7 +9,7 @@ public:
   RegionCalculator() {}
   // return {BeginRowIdx, EndRowIdx, BeginColIdx, EndColIdx}
   virtual std::tuple<int, int, int, int>
-  getRegion(const Input::Processed::Net *Net) = 0;
+  getRegion(const Input::Processed::CellInst *Cell) = 0;
 };
 
 } // namespace RegionCalculator

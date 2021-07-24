@@ -3,24 +3,50 @@
 namespace cell_move_router {
 namespace RegionCalculator {
 
-std::pair<int, int> OptimalRegion::getMedium(std::vector<int> &V) {
-  int L = (V.size() - 1) / 2;
-  int R = V.size() / 2;
-  std::nth_element(V.begin(), V.begin() + R, V.end());
-  std::nth_element(V.begin(), V.begin() + L, V.begin() + R);
-  return {V[L], V[R]};
-}
-
 std::tuple<int, int, int, int>
-OptimalRegion::getRegion(const Input::Processed::Net *Net) {
-  std::vector<int> Rows, Cols;
-  for (const auto &Pin : Net->getPins()) {
-    Rows.emplace_back(Pin.getInst()->getGGridRowIdx());
-    Cols.emplace_back(Pin.getInst()->getGGridColIdx());
+OptimalRegion::getRegion(const Input::Processed::CellInst *Cell) {
+  bool IsChange = false;
+  std::vector<int> OptimalRows, OptimalCols;
+  for (auto Net : InputPtr->getRelativeNetsMap().at(Cell)) {
+    int RowBegin = std::numeric_limits<int>::max();
+    int ColBegin = std::numeric_limits<int>::max();
+    int RowEnd = 0, ColEnd = 0;
+    for (auto &Pin : Net->getPins()) {
+      auto PinCell = Pin.getInst();
+      if (PinCell != Cell) {
+        RowBegin = std::min(RowBegin, PinCell->getGGridRowIdx());
+        ColBegin = std::min(ColBegin, PinCell->getGGridColIdx());
+        RowEnd = std::max(RowEnd, PinCell->getGGridRowIdx());
+        ColEnd = std::max(ColEnd, PinCell->getGGridColIdx());
+        IsChange = true;
+      }
+    }
+
+    OptimalRows.emplace_back(RowBegin);
+    OptimalCols.emplace_back(ColBegin);
+    OptimalRows.emplace_back(RowEnd);
+    OptimalCols.emplace_back(ColEnd);
   }
-  auto RowCoord = getMedium(Rows);
-  auto ColCoord = getMedium(Cols);
-  return {RowCoord.first, RowCoord.second, ColCoord.first, ColCoord.second};
+
+  int RowBeginIdx = 0;
+  int RowEndIdx = 0;
+  int ColBeginIdx = 0;
+  int ColEndIdx = 0;
+
+  if (IsChange) {
+    std::sort(OptimalRows.begin(), OptimalRows.end());
+    std::sort(OptimalCols.begin(), OptimalCols.end());
+    RowBeginIdx = OptimalRows[OptimalRows.size() / 2 - 1];
+    RowEndIdx = OptimalRows[OptimalRows.size() / 2];
+    ColBeginIdx = OptimalCols[OptimalCols.size() / 2 - 1];
+    ColEndIdx = OptimalCols[OptimalCols.size() / 2];
+  } else {
+    RowBeginIdx = InputPtr->getRowBeginIdx();
+    RowEndIdx = InputPtr->getRowEndIdx();
+    ColBeginIdx = InputPtr->getColBeginIdx();
+    ColEndIdx = InputPtr->getColEndIdx();
+  }
+  return {RowBeginIdx, RowEndIdx, ColBeginIdx, ColEndIdx};
 }
 
 } // namespace RegionCalculator

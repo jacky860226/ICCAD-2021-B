@@ -1,4 +1,5 @@
 #include "cell_move_router/Input/Processed/Input.hpp"
+#include <algorithm>
 
 namespace cell_move_router {
 namespace Input {
@@ -69,12 +70,32 @@ std::vector<Route> Input::CreateRoutes() {
   return Routes;
 }
 
+std::unordered_map<const CellInst *, std::vector<const Net *>>
+Input::CreateRelativeNetsMap() {
+  std::unordered_map<const CellInst *, std::vector<const Net *>>
+      RelativeNetsMap;
+  for (const auto &C : getCellInsts()) {
+    RelativeNetsMap.emplace(&C, std::vector<const Net *>());
+  }
+  for (const auto &N : getNets()) {
+    for (const auto &Pin : N.getPins())
+      RelativeNetsMap[Pin.getInst()].emplace_back(&N);
+  }
+  for (auto &P : RelativeNetsMap) {
+    std::sort(P.second.begin(), P.second.end());
+    P.second.erase(std::unique(P.second.begin(), P.second.end()),
+                   P.second.end());
+  }
+  return RelativeNetsMap;
+}
+
 Input::Input(std::unique_ptr<Raw::Input> &&RawInput)
     : RawInput(std::move(RawInput)), LayerMap(CreateLayerMap()),
       MasterCells(CreateMasterCells()), MasterCellMap(CreateMasterCellMap()),
       CellInsts(CreateCellInsts()), CellInstMap(CreateCellInstMap()),
       Nets(CreateNets()), NetMap(CreateNetMap()),
-      VoltageAreas(CreateVoltageAreas()), Routes(CreateRoutes()) {}
+      VoltageAreas(CreateVoltageAreas()), Routes(CreateRoutes()),
+      RelativeNetsMap(CreateRelativeNetsMap()) {}
 
 void Input::to_ostream(std::ostream &out) const {
   out << "MaxCellMove " << getMaxCellMove() << '\n';
