@@ -192,7 +192,14 @@ void GraphApproxRouter::rerouteAll() {
     auto OriginRoute = getGridManager()->getNetRoutes()[NetPtr];
     getGridManager()->removeNet(NetPtr);
     auto Routes = singleNetRoute(NetPtr, OriginRoute.first);
-    getGridManager()->addNet(NetPtr, std::move(Routes));
+    auto Cost = getGridManager()->getRouteCost(NetPtr, Routes);
+    getGridManager()->addNet(NetPtr, std::move(Routes), Cost);
+    // TODO: check net cost
+    // if (Cost < OriginRoute.second)
+    //   getGridManager()->addNet(NetPtr, std::move(Routes), Cost);
+    // else
+    //   getGridManager()->addNet(NetPtr, std::move(OriginRoute.first),
+    //                            OriginRoute.second);
   }
 }
 

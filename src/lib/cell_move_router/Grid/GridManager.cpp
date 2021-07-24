@@ -4,7 +4,8 @@ namespace cell_move_router {
 namespace Grid {
 GridManager::GridManager(const Input::Processed::Input *InputPtr)
     : InputPtr(InputPtr), Codec({InputPtr->getRowSize(), InputPtr->getColsize(),
-                                 InputPtr->getLayers().size()}) {
+                                 InputPtr->getLayers().size()}),
+      Tag(0), CurrentCost(0) {
   Grids.reserve(Codec.max());
   for (auto Layer : InputPtr->getLayers()) {
     for (size_t C = 0; C < Codec.at(1); ++C) {
@@ -36,7 +37,8 @@ GridManager::GridManager(const Input::Processed::Input *InputPtr)
     RoutesNet[Route.getNetPtr()].emplace_back(Route);
   }
   for (auto NetPair : RoutesNet) {
-    addNet(NetPair.first, std::move(NetPair.second));
+    auto Cost = getRouteCost(NetPair.first, NetPair.second);
+    addNet(NetPair.first, std::move(NetPair.second), Cost);
   }
   for (auto &VoltageArea : InputPtr->getVoltageAreas()) {
     for (auto GGrid : VoltageArea.getGGrids()) {
@@ -68,15 +70,15 @@ GridManager::coordinateInv(unsigned long long Coordinate) const {
 }
 
 void GridManager::addNet(const Input::Processed::Net *Net,
-                         std::vector<Input::Processed::Route> &&Routes) {
-  auto tryAddNet = [&](int R, int C, int L) -> bool {
+                         std::vector<Input::Processed::Route> &&Routes,
+                         long long Cost) {
+  auto tryAddNet = [&](int R, int C, int L) {
     auto Coordinate = coordinateTrans(R, C, L);
     assert(Coordinate < Grids.size());
     auto &Grid = Grids.at(Coordinate);
     if (!Grid.addNet(Net))
-      return false;
+      return;
     Grid.addDemand(1);
-    return true;
   };
   for (auto &Pin : Net->getPins()) {
     auto CellPtr = Pin.getInst();
@@ -85,18 +87,17 @@ void GridManager::addNet(const Input::Processed::Net *Net,
     int L = Pin.getMasterPin()->getPinLayer()->getIdx();
     tryAddNet(R, C, L);
   }
-  unsigned Len = 0;
+  CurrentCost += Cost;
   for (auto &Route : Routes) {
     for (int R = Route.getSRowIdx(); R <= Route.getERowIdx(); ++R) {
       for (int C = Route.getSColIdx(); C <= Route.getEColIdx(); ++C) {
         for (int L = Route.getSLayIdx(); L <= Route.getELayIdx(); ++L) {
-          if (tryAddNet(R, C, L))
-            Len++;
+          tryAddNet(R, C, L);
         }
       }
     }
   }
-  NetRoutes.emplace(Net, std::make_pair(std::move(Routes), Len));
+  NetRoutes.emplace(Net, std::make_pair(std::move(Routes), Cost));
 }
 
 void GridManager::removeNet(const Input::Processed::Net *Net) {
@@ -116,6 +117,7 @@ void GridManager::removeNet(const Input::Processed::Net *Net) {
     tryRemoveNet(R, C, L);
   }
   auto Iter = NetRoutes.find(Net);
+  CurrentCost -= Iter->second.second;
   auto &Routes = Iter->second.first;
   for (auto &Route : Routes) {
     for (int R = Route.getSRowIdx(); R <= Route.getERowIdx(); ++R) {
@@ -159,6 +161,38 @@ void GridManager::removeCell(const Input::Processed::CellInst *CellInst) {
     assert(BlkgCooridnate < Grids.size());
     Grids.at(BlkgCooridnate).addDemand(-Demand);
   }
+}
+
+long long
+GridManager::getRouteCost(const Input::Processed::Net *Net,
+                          const std::vector<Input::Processed::Route> &Routes) {
+  unsigned long long Ans = 0;
+  increaseTag();
+  auto Calculate = [&](int R, int C, int L) {
+    auto Coordinate = coordinateTrans(R, C, L);
+    auto &Grid = Grids.at(Coordinate);
+    if (Grid.getTag() == Tag)
+      return;
+    Grid.getTag() = Tag;
+    Ans += InputPtr->getLayers()[L - 1].getPowerFactor();
+  };
+  for (auto &Pin : Net->getPins()) {
+    auto CellPtr = Pin.getInst();
+    int R = CellPtr->getGGridRowIdx();
+    int C = CellPtr->getGGridColIdx();
+    int L = Pin.getMasterPin()->getPinLayer()->getIdx();
+    Calculate(R, C, L);
+  }
+  for (auto &Route : Routes) {
+    for (int R = Route.getSRowIdx(); R <= Route.getERowIdx(); ++R) {
+      for (int C = Route.getSColIdx(); C <= Route.getEColIdx(); ++C) {
+        for (int L = Route.getSLayIdx(); L <= Route.getELayIdx(); ++L) {
+          Calculate(R, C, L);
+        }
+      }
+    }
+  }
+  return Ans * Net->getWeight();
 }
 
 } // namespace Grid
