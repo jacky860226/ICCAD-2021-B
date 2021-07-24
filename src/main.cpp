@@ -1,44 +1,41 @@
 #include "GlobalTimer.hpp"
-#include "cell_move_router/Grid/GridManager.hpp"
 #include "cell_move_router/IOStreamCreator.hpp"
 #include "cell_move_router/Input/Processed/Input.hpp"
 #include "cell_move_router/Parser.hpp"
-#include "cell_move_router/Router/GraphApproxRouter.hpp"
+#include "cell_move_router/Solver.hpp"
 #include <iostream>
-#include <istream>
 
-int main(int argc, char **argv) {
-  GlobalTimer::initialTimerAndSetTimeLimit(std::chrono::seconds(55 * 60));
-
+namespace {
+std::unique_ptr<cell_move_router::Input::Processed::Input>
+readInput(int argc, char **argv) {
   cell_move_router::Parser Parser;
   auto InputStreamPtr =
       cell_move_router::InputStreamCreator().createInputStream(argc, argv);
   auto Input = Parser.parse(*InputStreamPtr);
-  InputStreamPtr = nullptr;
+  return cell_move_router::Input::Processed::Input::createInput(
+      std::move(Input));
+}
 
-  auto ProcessedInput =
-      cell_move_router::Input::Processed::Input::createInput(std::move(Input));
-
-  // if (ProcessedInput != nullptr) { // This is for test
-  //   auto OutputStreamPtr =
-  //       cell_move_router::OutputStreamCreator().createOutputStream(argc,
-  //       argv);
-  //   ProcessedInput->to_ostream(*OutputStreamPtr);
-  // }
-
-  cell_move_router::Grid::GridManager GridManager(ProcessedInput.get());
-
-  cell_move_router::Router::GraphApproxRouter Router(&GridManager);
-  Router.rerouteAll();
-
+void writeOutput(cell_move_router::Solver &Solver, int argc, char **argv) {
   auto OutputStreamPtr =
       cell_move_router::OutputStreamCreator().createOutputStream(argc, argv);
-  GridManager.output(*OutputStreamPtr);
+  Solver.getGridManager().to_ostream(*OutputStreamPtr);
+}
+} // namespace
+
+int main(int argc, char **argv) {
+  GlobalTimer::initialTimerAndSetTimeLimit(std::chrono::seconds(55 * 60));
+
+  auto Input = readInput(argc, argv);
+
+  cell_move_router::Solver Solver(Input.get());
+  Solver.solve();
+
+  writeOutput(Solver, argc, argv);
 
   auto Timer = GlobalTimer::getInstance();
-  // std::cerr << Timer->getDuration<>().count() / 1e9 << " seconds\n";
+  std::cerr << Timer->getDuration<>().count() / 1e9 << " seconds\n";
   if (Timer->overTime()) {
-    std::cerr << Timer->getDuration<>().count() / 1e9 << " seconds\n";
     std::cerr << "overtime!!\n";
   }
   return 0;
