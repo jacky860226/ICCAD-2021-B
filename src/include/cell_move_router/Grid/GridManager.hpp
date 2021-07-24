@@ -4,10 +4,12 @@
 #include "cell_move_router/Grid/CellGrid.hpp"
 #include "cell_move_router/Grid/Grid.hpp"
 #include "cell_move_router/Input/Processed/Input.hpp"
+#include <limits>
 #include <ostream>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
+
 namespace cell_move_router {
 namespace Grid {
 class GridManager : Util::Outputable {
@@ -18,7 +20,7 @@ class GridManager : Util::Outputable {
   std::unordered_map<const Input::Processed::CellInst *, unsigned long long>
       CellCoordinate;
   std::unordered_map<const Input::Processed::Net *,
-                     std::pair<std::vector<Input::Processed::Route>, unsigned>>
+                     std::pair<std::vector<Input::Processed::Route>, long long>>
       NetRoutes;
   std::unordered_map<const Input::Processed::CellInst *,
                      std::unordered_set<unsigned long long>>
@@ -26,14 +28,27 @@ class GridManager : Util::Outputable {
 
   std::vector<Input::Processed::Net *> NetPtrs;
 
+  unsigned Tag;
+  long long CurrentCost;
+
   unsigned long long coordinateTrans(int R, int C, int L) const;
   std::tuple<int, int, int> coordinateInv(unsigned long long Coordinate) const;
+
+  void increaseTag() {
+    if (Tag == std::numeric_limits<unsigned>::max()) {
+      Tag = 1;
+      for (auto &G : Grids)
+        G.getTag() = 0;
+    } else {
+      ++Tag;
+    }
+  }
 
 public:
   GridManager(const Input::Processed::Input *InputPtr);
   const Input::Processed::Input *getInputPtr() const { return InputPtr; }
   void addNet(const Input::Processed::Net *Net,
-              std::vector<Input::Processed::Route> &&Routes);
+              std::vector<Input::Processed::Route> &&Routes, long long Cost);
   void removeNet(const Input::Processed::Net *Net);
   void addCell(const Input::Processed::CellInst *CellInst, const int Row,
                const int Col);
@@ -54,10 +69,13 @@ public:
     CellCoordinate.emplace(CellInst, coordinateTrans(Row, Col, 1));
   }
   std::unordered_map<const Input::Processed::Net *,
-                     std::pair<std::vector<Input::Processed::Route>, unsigned>>
+                     std::pair<std::vector<Input::Processed::Route>, long long>>
       &getNetRoutes() {
     return NetRoutes;
   }
+  long long getRouteCost(const Input::Processed::Net *Net,
+                         const std::vector<Input::Processed::Route> &Routes);
+  long long getCurrentCost() const { return CurrentCost; }
   void to_ostream(std::ostream &out) const override {
     std::vector<const std::pair<const Input::Processed::CellInst *const,
                                 unsigned long long> *>

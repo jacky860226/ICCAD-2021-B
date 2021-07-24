@@ -8,16 +8,18 @@ private:
   const unsigned long long Coordinate;
   int Capacity;
   int Demand;
+  unsigned Tag;
   std::unordered_set<const Input::Processed::Net *> NetSet;
 
 public:
   Grid(unsigned long long Coordinate, int Capacity)
-      : Coordinate(Coordinate), Capacity(Capacity), Demand(0) {}
+      : Coordinate(Coordinate), Capacity(Capacity), Demand(0), Tag(0) {}
 
   unsigned long long getCoordinate() const { return Coordinate; }
   int getSupply() const { return Capacity - Demand; }
   int getDemand() const { return Demand; }
   int getCapacity() const { return Capacity; }
+  unsigned &getTag() { return Tag; }
   const std::unordered_set<const Input::Processed::Net *> &getNetSet() const {
     return NetSet;
   }
