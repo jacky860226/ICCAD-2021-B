@@ -6,7 +6,7 @@ namespace cell_move_router {
 namespace Router {
 
 class RoutingGraphManager {
-  steiner_tree::UndirectedGraph<double> G;
+  steiner_tree::UndirectedGraph<long long> G;
   cell_move_router::CoordinateCodec<unsigned long long> Codec;
   Grid::GridManager *GridManager;
   const Input::Processed::Net *Net;
@@ -18,13 +18,13 @@ class RoutingGraphManager {
 
 public:
   RoutingGraphManager() : Codec({0, 0, 0}){};
-  const steiner_tree::UndirectedGraph<double> &getGraph() const { return G; }
+  const steiner_tree::UndirectedGraph<long long> &getGraph() const { return G; }
   const std::unordered_set<size_t> &getTerminals() const { return Terminals; }
   void setGraphInfo(Grid::GridManager *_GridManager,
                     const Input::Processed::Net *_Net,
                     const std::vector<Input::Processed::Route> &OriginRoute);
   std::vector<Input::Processed::Route> createTerminalsAndRouteUnderMinLayer();
-  void createGraph(const std::vector<double> &LayerFactor,
+  void createGraph(const std::vector<long long> &LayerFactor,
                    const std::vector<char> &LayerDir);
   std::vector<Input::Processed::Route>
   createFinalRoute(const std::vector<size_t> &Eids,
@@ -38,7 +38,7 @@ public:
   GraphApproxRouter(Grid::GridManager *GridManagerPtr)
       : RouterBase(GridManagerPtr) {}
 
-  std::vector<Input::Processed::Route> singleNetRoute(
+  std::pair<std::vector<Input::Processed::Route>, bool> singleNetRoute(
       const Input::Processed::Net *Net,
       const std::vector<Input::Processed::Route> &OriginRoute) override;
   void rerouteAll() override;

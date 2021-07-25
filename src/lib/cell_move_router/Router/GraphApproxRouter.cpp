@@ -26,8 +26,8 @@ void RoutingGraphManager::setGraphInfo(
   MaxLayerIdx = MinRoutingLayConstraint->getIdx();
 
   for (const auto &Pin : Net->getPins()) {
-    int Row = Pin.getInst()->getGGridRowIdx();
-    int Col = Pin.getInst()->getGGridColIdx();
+    int Row = 0, Col = 0;
+    std::tie(Row, Col) = GridManager->getCellCoordinate(Pin.getInst());
     int Layer = Pin.getMasterPin()->getPinLayer()->getIdx();
     MinR = std::min(MinR, Row);
     MaxR = std::max(MaxR, Row);
@@ -63,8 +63,8 @@ RoutingGraphManager::createTerminalsAndRouteUnderMinLayer() {
   PinMinLayer.clear();
   Terminals.clear();
   for (const auto &Pin : Net->getPins()) {
-    int Row = Pin.getInst()->getGGridRowIdx();
-    int Col = Pin.getInst()->getGGridColIdx();
+    int Row = 0, Col = 0;
+    std::tie(Row, Col) = GridManager->getCellCoordinate(Pin.getInst());
     int Layer = Pin.getMasterPin()->getPinLayer()->getIdx();
     size_t Coord = Codec.encode(
         {(unsigned long long)(Row - MinR), (unsigned long long)(Col - MinC),
@@ -91,7 +91,7 @@ RoutingGraphManager::createTerminalsAndRouteUnderMinLayer() {
   }
   return RouteUnderMinLayer;
 }
-void RoutingGraphManager::createGraph(const std::vector<double> &LayerFactor,
+void RoutingGraphManager::createGraph(const std::vector<long long> &LayerFactor,
                                       const std::vector<char> &LayerDir) {
   G.clear();
   G.setVertexNum(Codec.max());
@@ -111,7 +111,7 @@ void RoutingGraphManager::createGraph(const std::vector<double> &LayerFactor,
               Codec.encode({(unsigned long long)(R - MinR),
                             (unsigned long long)(C - MinC + 1),
                             (unsigned long long)(L - MinLayerIdx)});
-          double Weight = LayerFactor.at(L) * 2;
+          long long Weight = LayerFactor.at(L) * 2;
           G.addEdge(Coord, NeiCoord, Weight);
         }
         if (R != MaxR && GridManager->getGrid(R + 1, C, L).getSupply() > 0 &&
@@ -120,7 +120,7 @@ void RoutingGraphManager::createGraph(const std::vector<double> &LayerFactor,
               Codec.encode({(unsigned long long)(R - MinR + 1),
                             (unsigned long long)(C - MinC),
                             (unsigned long long)(L - MinLayerIdx)});
-          double Weight = LayerFactor.at(L) * 2;
+          long long Weight = LayerFactor.at(L) * 2;
           G.addEdge(Coord, NeiCoord, Weight);
         }
       }
@@ -139,7 +139,7 @@ void RoutingGraphManager::createGraph(const std::vector<double> &LayerFactor,
         size_t NeiCoord = Codec.encode(
             {(unsigned long long)(R - MinR), (unsigned long long)(C - MinC),
              (unsigned long long)(L - MinLayerIdx + 1)});
-        double Weight = LayerFactor.at(L) + LayerFactor.at(L + 1);
+        long long Weight = LayerFactor.at(L) + LayerFactor.at(L + 1);
         G.addEdge(Coord, NeiCoord, Weight);
       }
     }
@@ -162,7 +162,8 @@ std::vector<Input::Processed::Route> RoutingGraphManager::createFinalRoute(
   return Route;
 }
 
-std::vector<Input::Processed::Route> GraphApproxRouter::singleNetRoute(
+std::pair<std::vector<Input::Processed::Route>, bool>
+GraphApproxRouter::singleNetRoute(
     const Input::Processed::Net *Net,
     const std::vector<Input::Processed::Route> &OriginRoute) {
 
@@ -171,35 +172,36 @@ std::vector<Input::Processed::Route> GraphApproxRouter::singleNetRoute(
       std::move(RGM.createTerminalsAndRouteUnderMinLayer());
   RGM.createGraph(getLayerFactor(), getLayerDir());
   const auto &G = RGM.getGraph();
-  steiner_tree::Solver<double> solver(G);
-  auto Res = solver.solve(RGM.getTerminals());
-  assert(Res && "Unconnected!!");
+  steiner_tree::Solver<long long> Solver(G);
+  auto Res = Solver.solve(RGM.getTerminals());
+  if (!Res)
+    return {{}, false};
   auto FinalRoute = RGM.createFinalRoute(*Res, std::move(RouteUnderMinLayer));
-  return FinalRoute;
-}
-
-bool netCmp(const Input::Processed::Net *A, const Input::Processed::Net *B) {
-  return A->getWeight() < B->getWeight();
+  return {FinalRoute, true};
 }
 
 void GraphApproxRouter::rerouteAll() {
-  std::vector<const Input::Processed::Net *> NetPtrs;
+  std::vector<std::pair<const Input::Processed::Net *, long long>> NetPtrs;
   for (const auto &NetRoute : getGridManager()->getNetRoutes()) {
-    NetPtrs.emplace_back(NetRoute.first);
+    NetPtrs.emplace_back(NetRoute.first, NetRoute.second.second);
   }
-  sort(NetPtrs.begin(), NetPtrs.end(), netCmp);
-  for (auto NetPtr : NetPtrs) {
-    auto OriginRoute = getGridManager()->getNetRoutes()[NetPtr];
+  auto NetCmp =
+      [&](const std::pair<const Input::Processed::Net *, long long> &A,
+          const std::pair<const Input::Processed::Net *, long long> &B) {
+        return A.second < B.second;
+      };
+  std::sort(NetPtrs.begin(), NetPtrs.end(), NetCmp);
+  for (auto &P : NetPtrs) {
+    auto NetPtr = P.first;
+    auto &OriginRoute = getGridManager()->getNetRoutes()[NetPtr];
     getGridManager()->removeNet(NetPtr);
-    auto Routes = singleNetRoute(NetPtr, OriginRoute.first);
+    auto Routes = singleNetRoute(NetPtr, OriginRoute.first).first;
+    Input::Processed::Route::reduceRouteSegments(Routes);
     auto Cost = getGridManager()->getRouteCost(NetPtr, Routes);
-    getGridManager()->addNet(NetPtr, std::move(Routes), Cost);
-    // TODO: check net cost
-    // if (Cost < OriginRoute.second)
-    //   getGridManager()->addNet(NetPtr, std::move(Routes), Cost);
-    // else
-    //   getGridManager()->addNet(NetPtr, std::move(OriginRoute.first),
-    //                            OriginRoute.second);
+    if (Cost < OriginRoute.second) {
+      OriginRoute = {std::move(Routes), Cost};
+    }
+    getGridManager()->addNet(NetPtr);
   }
 }
 

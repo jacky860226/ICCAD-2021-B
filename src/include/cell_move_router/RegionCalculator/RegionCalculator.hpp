@@ -1,3 +1,4 @@
+#pragma once
 #include "cell_move_router/Input/Processed/Datas.hpp"
 #include <tuple>
 #include <utility>

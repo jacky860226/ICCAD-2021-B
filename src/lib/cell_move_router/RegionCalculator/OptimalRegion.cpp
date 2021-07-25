@@ -14,10 +14,12 @@ OptimalRegion::getRegion(const Input::Processed::CellInst *Cell) {
     for (auto &Pin : Net->getPins()) {
       auto PinCell = Pin.getInst();
       if (PinCell != Cell) {
-        RowBegin = std::min(RowBegin, PinCell->getGGridRowIdx());
-        ColBegin = std::min(ColBegin, PinCell->getGGridColIdx());
-        RowEnd = std::max(RowEnd, PinCell->getGGridRowIdx());
-        ColEnd = std::max(ColEnd, PinCell->getGGridColIdx());
+        int PinRow = 0, PinCol = 0;
+        std::tie(PinRow, PinCol) = GridManagerPtr->getCellCoordinate(PinCell);
+        RowBegin = std::min(RowBegin, PinRow);
+        ColBegin = std::min(ColBegin, PinCol);
+        RowEnd = std::max(RowEnd, PinRow);
+        ColEnd = std::max(ColEnd, PinCol);
         IsChange = true;
       }
     }

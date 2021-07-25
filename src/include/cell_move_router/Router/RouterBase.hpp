@@ -5,13 +5,13 @@ namespace cell_move_router {
 namespace Router {
 class RouterBase {
   Grid::GridManager *GridManagerPtr;
-  const std::vector<double> LayerFactor;
+  const std::vector<long long> LayerFactor;
   const std::vector<char> LayerDir;
 
 protected:
-  std::vector<double> buildLayerFactor(Grid::GridManager *GridManagerPtr) {
+  std::vector<long long> buildLayerFactor(Grid::GridManager *GridManagerPtr) {
     auto Layers = GridManagerPtr->getInputPtr()->getLayers();
-    std::vector<double> Ret(Layers.size() + 1);
+    std::vector<long long> Ret(Layers.size() + 1);
     for (const auto &Layer : Layers) {
       Ret.at(Layer.getIdx()) = Layer.getPowerFactor();
     }
@@ -35,10 +35,10 @@ public:
 
   Grid::GridManager *getGridManager() { return GridManagerPtr; }
   const Grid::GridManager *getGridManager() const { return GridManagerPtr; }
-  const std::vector<double> &getLayerFactor() const { return LayerFactor; }
+  const std::vector<long long> &getLayerFactor() const { return LayerFactor; }
   const std::vector<char> &getLayerDir() const { return LayerDir; }
 
-  virtual std::vector<Input::Processed::Route>
+  virtual std::pair<std::vector<Input::Processed::Route>, bool>
   singleNetRoute(const Input::Processed::Net *Net,
                  const std::vector<Input::Processed::Route> &OriginRoute) = 0;
   virtual void rerouteAll() = 0;

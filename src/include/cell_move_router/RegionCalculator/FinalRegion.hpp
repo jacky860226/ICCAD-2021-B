@@ -1,3 +1,4 @@
+#pragma once
 #include "cell_move_router/Grid/GridManager.hpp"
 #include "cell_move_router/RegionCalculator/OptimalRegion.hpp"
 #include <tuple>
@@ -8,7 +9,6 @@ namespace cell_move_router {
 namespace RegionCalculator {
 
 class FinalRegion : public OptimalRegion {
-  Grid::GridManager *GridManagerPtr;
   const CoordinateCodec<unsigned long long> Codec;
   const std::vector<int> Supply;
   const std::unordered_map<const Input::Processed::CellInst *,
@@ -25,8 +25,7 @@ class FinalRegion : public OptimalRegion {
 
 public:
   FinalRegion(Grid::GridManager *GridManagerPtr)
-      : OptimalRegion(GridManagerPtr->getInputPtr()),
-        GridManagerPtr(GridManagerPtr),
+      : OptimalRegion(GridManagerPtr),
         Codec({InputPtr->getRowSize(), InputPtr->getColsize()}),
         Supply(calSupply()), FinalPos(calFinalPos()) {}
 

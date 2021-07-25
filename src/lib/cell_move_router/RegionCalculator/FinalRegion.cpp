@@ -68,7 +68,8 @@ std::pair<int, int> FinalRegion::getBestPositionOfOptimalRegion(
   int MaxSupply = 0;
   for (auto R = RowBeginIdx; R <= RowEndIdx; ++R) {
     for (auto C = ColBeginIdx; C <= ColEndIdx; ++C) {
-      auto Coord = Codec.encode({R * 1uLL, C * 1uLL});
+      auto Coord =
+          Codec.encode({(R - RowBeginIdx) * 1uLL, (C - ColBeginIdx) * 1uLL});
       auto CurSupply = Supply.at(Coord);
       if (MaxSupply < CurSupply) {
         MaxSupply = CurSupply;
@@ -78,6 +79,24 @@ std::pair<int, int> FinalRegion::getBestPositionOfOptimalRegion(
     }
   }
   return {NewRow, NewCol};
+}
+
+std::tuple<int, int, int, int>
+FinalRegion::getRegion(const Input::Processed::CellInst *Cell) {
+  int RowBeginIdx = 0, RowEndIdx = 0;
+  int ColBeginIdx = 0, ColEndIdx = 0;
+  std::tie(RowBeginIdx, ColBeginIdx) = std::tie(RowEndIdx, ColEndIdx) =
+      FinalPos.at(Cell);
+
+  if (RowBeginIdx >= InputPtr->getRowBeginIdx() + 1)
+    --RowBeginIdx;
+  if (RowEndIdx + 1 <= InputPtr->getRowEndIdx())
+    ++RowEndIdx;
+  if (ColBeginIdx >= InputPtr->getColBeginIdx() + 1)
+    --ColBeginIdx;
+  if (ColEndIdx + 1 <= InputPtr->getColEndIdx())
+    ++ColEndIdx;
+  return {RowBeginIdx, RowEndIdx, ColBeginIdx, ColEndIdx};
 }
 
 } // namespace RegionCalculator

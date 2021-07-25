@@ -7,11 +7,11 @@ namespace cell_move_router {
 namespace Input {
 namespace Raw {
 class Layer : Util::Outputable {
-  const std::string LayerName;
-  const int Idx;
-  const char RoutingDir;
-  const int DefaultSupplyOfOneGGrid;
-  const long long PowerFactor;
+  std::string LayerName;
+  int Idx;
+  char RoutingDir;
+  int DefaultSupplyOfOneGGrid;
+  long long PowerFactor;
 
 public:
   Layer(std::string &&LayerName, const int Idx, const char RoutingDir,

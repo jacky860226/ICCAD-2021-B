@@ -1,4 +1,6 @@
 #include "cell_move_router/Input/Processed/Datas.hpp"
+#include <algorithm>
+#include <cassert>
 
 namespace cell_move_router {
 namespace Input {
@@ -98,10 +100,12 @@ void VoltageArea::to_ostream(std::ostream &out) const {
 Route::Route(const int _SRowIdx, const int _SColIdx, const int _SLayIdx,
              const int _ERowIdx, const int _EColIdx, const int _ELayIdx,
              const Net *NetPtr)
-    : SRowIdx(std::min(_SRowIdx, _ERowIdx)), SColIdx(std::min(_SColIdx, _EColIdx)),
-      SLayIdx(std::min(_SLayIdx, _ELayIdx)), ERowIdx(std::max(_SRowIdx, _ERowIdx)),
-      EColIdx(std::max(_SColIdx, _EColIdx)), ELayIdx(std::max(_SLayIdx, _ELayIdx)),
-      NetPtr(NetPtr) {}
+    : SRowIdx(std::min(_SRowIdx, _ERowIdx)),
+      SColIdx(std::min(_SColIdx, _EColIdx)),
+      SLayIdx(std::min(_SLayIdx, _ELayIdx)),
+      ERowIdx(std::max(_SRowIdx, _ERowIdx)),
+      EColIdx(std::max(_SColIdx, _EColIdx)),
+      ELayIdx(std::max(_SLayIdx, _ELayIdx)), NetPtr(NetPtr) {}
 
 Route::Route(const Raw::Route *RawRoute,
              const std::unordered_map<std::string, const Net *> &NetMap)
@@ -114,6 +118,88 @@ void Route::to_ostream(std::ostream &out) const {
   out << SRowIdx << ' ' << SColIdx << ' ' << SLayIdx << ' ' << ERowIdx << ' '
       << EColIdx << ' ' << ELayIdx << ' ' << NetPtr->getNetName() << '\n';
 }
+
+void Route::reduceRouteSegments(std::vector<Route> &RouteSegments) {
+  auto RouteSegmentCmp = [&](const Route &A, const Route &B) {
+    auto TA = A.getType(), TB = B.getType();
+    if (TA != TB)
+      return TA < TB;
+    switch (TA) {
+    case Type::Horizontal: {
+      if (A.SLayIdx != B.SLayIdx)
+        return A.SLayIdx < B.SLayIdx;
+      if (A.SRowIdx != B.SRowIdx)
+        return A.SRowIdx < B.SRowIdx;
+      return A.SColIdx < B.SColIdx;
+    }
+    case Type::Vertical: {
+      if (A.SLayIdx != B.SLayIdx)
+        return A.SLayIdx < B.SLayIdx;
+      if (A.SColIdx != B.SColIdx)
+        return A.SColIdx < B.SColIdx;
+      return A.SRowIdx < B.SRowIdx;
+    }
+    case Type::Via: {
+      if (A.SRowIdx != B.SRowIdx)
+        return A.SRowIdx < B.SRowIdx;
+      if (A.SColIdx != B.SColIdx)
+        return A.SColIdx < B.SColIdx;
+      return A.SLayIdx < B.SLayIdx;
+    }
+    default:
+      assert(false && "Error RouteSegment::Type!");
+    }
+  };
+  std::sort(RouteSegments.begin(), RouteSegments.end(), RouteSegmentCmp);
+  std::vector<Route> NewRouteSegments;
+  Route *CurRS = nullptr;
+  for (auto &RS : RouteSegments) {
+    bool NeedNewRS = false;
+    auto Ty = RS.getType();
+    if (CurRS == nullptr || Ty != CurRS->getType())
+      NeedNewRS = true;
+    else {
+      bool RowCmp = CurRS->SRowIdx == RS.SRowIdx;
+      bool ColCmp = CurRS->SColIdx == RS.SColIdx;
+      bool ViaCmp = CurRS->SLayIdx == RS.SLayIdx;
+      switch (Ty) {
+      case Type::Horizontal: {
+        if (RowCmp && ViaCmp && CurRS->EColIdx == RS.SColIdx)
+          CurRS->EColIdx = RS.EColIdx;
+        else
+          NeedNewRS = true;
+        break;
+      }
+      case Type::Vertical: {
+        if (ColCmp && ViaCmp && CurRS->ERowIdx == RS.SRowIdx)
+          CurRS->ERowIdx = RS.ERowIdx;
+        else
+          NeedNewRS = true;
+        break;
+      }
+      case Type::Via: {
+        if (RowCmp && ColCmp && CurRS->ELayIdx == RS.SLayIdx)
+          CurRS->ELayIdx = RS.ELayIdx;
+        else
+          NeedNewRS = true;
+        break;
+      }
+      default:
+        NeedNewRS = true;
+      }
+    }
+    if (NeedNewRS) {
+      if (CurRS)
+        NewRouteSegments.emplace_back(*CurRS);
+      CurRS = &RS;
+    }
+  }
+  if (CurRS) {
+    NewRouteSegments.emplace_back(*CurRS);
+  }
+  RouteSegments = std::move(NewRouteSegments);
+}
+
 } // namespace Processed
 } // namespace Input
 } // namespace cell_move_router
