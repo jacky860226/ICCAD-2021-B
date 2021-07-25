@@ -1,4 +1,5 @@
 #include "cell_move_router/Parser.hpp"
+#include <algorithm>
 #include <cassert>
 
 namespace cell_move_router {
@@ -32,6 +33,11 @@ std::vector<Input::Raw::Layer> Parser::parseLayers(std::istream &input) {
     Layers.emplace_back(std::move(LayerName), Idx, RoutingDir,
                         DefaultSupplyOfOneGGrid, PowerFactor * 100);
   }
+  std::sort(
+      Layers.begin(), Layers.end(),
+      [&](const Input::Raw::Layer &A, const Input::Raw::Layer &B) -> bool {
+        return A.getIdx() < B.getIdx();
+      });
   return Layers;
 }
 

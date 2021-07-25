@@ -134,11 +134,12 @@ public:
 };
 
 class Route : Util::Outputable {
-  const int SRowIdx, SColIdx, SLayIdx;
-  const int ERowIdx, EColIdx, ELayIdx;
+  int SRowIdx, SColIdx, SLayIdx;
+  int ERowIdx, EColIdx, ELayIdx;
   const Net *NetPtr;
 
 public:
+  enum Type { Via, Horizontal, Vertical };
   Route(const int SRowIdx, const int SColIdx, const int SLayIdx,
         const int ERowIdx, const int EColIdx, const int ELayIdx,
         const Net *NetPtr);
@@ -152,6 +153,14 @@ public:
   int getEColIdx() const { return EColIdx; }
   int getELayIdx() const { return ELayIdx; }
   const Net *getNetPtr() const { return NetPtr; }
+  Type getType() const {
+    if (SColIdx != EColIdx)
+      return Type::Horizontal;
+    if (SRowIdx != ERowIdx)
+      return Type::Vertical;
+    return Type::Via;
+  }
+  static void reduceRouteSegments(std::vector<Route> &RouteSegments);
 };
 
 } // namespace Processed

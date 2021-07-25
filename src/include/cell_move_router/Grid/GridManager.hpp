@@ -28,6 +28,8 @@ class GridManager : Util::Outputable {
 
   std::vector<Input::Processed::Net *> NetPtrs;
 
+  std::unordered_set<unsigned> OverflowGrids;
+
   unsigned Tag;
   long long CurrentCost;
 
@@ -47,8 +49,7 @@ class GridManager : Util::Outputable {
 public:
   GridManager(const Input::Processed::Input *InputPtr);
   const Input::Processed::Input *getInputPtr() const { return InputPtr; }
-  void addNet(const Input::Processed::Net *Net,
-              std::vector<Input::Processed::Route> &&Routes, long long Cost);
+  void addNet(const Input::Processed::Net *Net);
   void removeNet(const Input::Processed::Net *Net);
   void addCell(const Input::Processed::CellInst *CellInst, const int Row,
                const int Col);
@@ -73,36 +74,19 @@ public:
       &getNetRoutes() {
     return NetRoutes;
   }
+  std::pair<std::vector<Input::Processed::Route>, long long> &
+  getNetRoute(const Input::Processed::Net *NetPtr) {
+    return NetRoutes[NetPtr];
+  }
   long long getRouteCost(const Input::Processed::Net *Net,
                          const std::vector<Input::Processed::Route> &Routes);
   long long getCurrentCost() const { return CurrentCost; }
-  void to_ostream(std::ostream &out) const override {
-    std::vector<const std::pair<const Input::Processed::CellInst *const,
-                                unsigned long long> *>
-        MovedCellInsts;
-    for (auto &P : CellCoordinate) {
-      if (coordinateTrans(P.first->getGGridRowIdx(), P.first->getGGridColIdx(),
-                          1) != P.second) {
-        MovedCellInsts.emplace_back(&P);
-      }
-    }
-    out << "NumMovedCellInst " << MovedCellInsts.size() << '\n';
-    for (auto P : MovedCellInsts) {
-      auto Coord = coordinateInv(P->second);
-      out << "CellInst " << P->first->getInstName() << ' ' << std::get<0>(Coord)
-          << ' ' << std::get<1>(Coord) << '\n';
-    }
-    int NumRoute = 0;
-    for (const auto &NetRoute : NetRoutes) {
-      NumRoute += NetRoute.second.first.size();
-    }
-    out << "NumRoutes " << NumRoute << '\n';
-    for (const auto &NetRoute : NetRoutes) {
-      for (const auto Route : NetRoute.second.first) {
-        Route.to_ostream(out);
-      }
-    }
+  const std::unordered_set<unsigned long long> &
+  getCellVoltageArea(const Input::Processed::CellInst *CellPtr) const {
+    return CellVoltageArea.at(CellPtr);
   }
+  bool isOverflow() const { return OverflowGrids.size(); }
+  void to_ostream(std::ostream &out) const override;
 };
 } // namespace Grid
 } // namespace cell_move_router
