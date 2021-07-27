@@ -20,26 +20,35 @@ void RoutingGraphManager::createGraph(const std::vector<long long> &LayerFactor,
 
   // wire
   for (int L = MinL; L <= MaxL; ++L) {
-    for (int R = MinR; R <= MaxR; ++R) {
-      for (int C = MinC; C <= MaxC; ++C) {
-        if (GridManager->getGrid(R, C, L).getSupply() <= 0)
-          continue;
-        size_t Coord = Codec.encode({(unsigned long long)(R - MinR),
+    if (LayerDir.at(L) == 'H') {
+      for (int R = MinR; R <= MaxR; ++R) {
+        for (int C = MinC; C < MaxC; ++C) {
+          if (GridManager->getGrid(R, C, L).getSupply() <= 0 ||
+              GridManager->getGrid(R, C + 1, L).getSupply() <= 0)
+            continue;
+          auto Coord = Codec.encode({(unsigned long long)(R - MinR),
                                      (unsigned long long)(C - MinC),
                                      (unsigned long long)(L - MinL)});
-        if (C != MaxC && GridManager->getGrid(R, C + 1, L).getSupply() > 0 &&
-            LayerDir.at(L) == 'H') {
-          size_t NeiCoord = Codec.encode({(unsigned long long)(R - MinR),
-                                          (unsigned long long)(C - MinC + 1),
-                                          (unsigned long long)(L - MinL)});
+          auto NeiCoord = Codec.encode({(unsigned long long)(R - MinR),
+                                        (unsigned long long)(C - MinC + 1),
+                                        (unsigned long long)(L - MinL)});
           long long Weight = LayerFactor.at(L) * 2;
           G.addEdge(Coord, NeiCoord, Weight);
         }
-        if (R != MaxR && GridManager->getGrid(R + 1, C, L).getSupply() > 0 &&
-            LayerDir.at(L) == 'V') {
-          size_t NeiCoord = Codec.encode({(unsigned long long)(R - MinR + 1),
-                                          (unsigned long long)(C - MinC),
-                                          (unsigned long long)(L - MinL)});
+      }
+    }
+    if (LayerDir.at(L) == 'V') {
+      for (int R = MinR; R < MaxR; ++R) {
+        for (int C = MinC; C <= MaxC; ++C) {
+          if (GridManager->getGrid(R, C, L).getSupply() <= 0 ||
+              GridManager->getGrid(R + 1, C, L).getSupply() <= 0)
+            continue;
+          auto Coord = Codec.encode({(unsigned long long)(R - MinR),
+                                     (unsigned long long)(C - MinC),
+                                     (unsigned long long)(L - MinL)});
+          auto NeiCoord = Codec.encode({(unsigned long long)(R - MinR + 1),
+                                        (unsigned long long)(C - MinC),
+                                        (unsigned long long)(L - MinL)});
           long long Weight = LayerFactor.at(L) * 2;
           G.addEdge(Coord, NeiCoord, Weight);
         }
@@ -53,12 +62,12 @@ void RoutingGraphManager::createGraph(const std::vector<long long> &LayerFactor,
         if (GridManager->getGrid(R, C, L).getSupply() <= 0 ||
             GridManager->getGrid(R, C, L + 1).getSupply() <= 0)
           continue;
-        size_t Coord = Codec.encode({(unsigned long long)(R - MinR),
-                                     (unsigned long long)(C - MinC),
-                                     (unsigned long long)(L - MinL)});
-        size_t NeiCoord = Codec.encode({(unsigned long long)(R - MinR),
-                                        (unsigned long long)(C - MinC),
-                                        (unsigned long long)(L - MinL + 1)});
+        auto Coord = Codec.encode({(unsigned long long)(R - MinR),
+                                   (unsigned long long)(C - MinC),
+                                   (unsigned long long)(L - MinL)});
+        auto NeiCoord = Codec.encode({(unsigned long long)(R - MinR),
+                                      (unsigned long long)(C - MinC),
+                                      (unsigned long long)(L - MinL + 1)});
         long long Weight = LayerFactor.at(L) + LayerFactor.at(L + 1);
         G.addEdge(Coord, NeiCoord, Weight);
       }

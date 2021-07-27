@@ -56,7 +56,8 @@ class BondaryBuilder {
   std::unordered_set<size_t> Terminals;
   std::vector<Input::Processed::Route> RouteUnderMinLayer;
 
-  bool checkRoute(const Input::Processed::Route &Route);
+  bool checkPins() const;
+  bool checkRoute(const Input::Processed::Route &Route) const;
 
 public:
   BondaryBuilder(Grid::GridManager *GridManager,

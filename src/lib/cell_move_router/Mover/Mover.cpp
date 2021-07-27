@@ -41,13 +41,7 @@ bool Mover::add_and_route(const Input::Processed::CellInst *CellPtr,
     OriginRoute = {std::move(Pair.first), Cost};
     bool Overflow = GridManager.isOverflow();
     GridManager.addNet(NetPtr);
-    if (GridManager.isOverflow()) {
-      // TODO: it should not happend !!!!
-      // Router may have bug !!!!
-      GridManager.removeNet(NetPtr);
-      Accept = false;
-      break;
-    }
+    assert(!GridManager.isOverflow());
   }
   if (Accept) {
     return true;

@@ -3,7 +3,19 @@
 namespace cell_move_router {
 namespace Router {
 
-bool BondaryBuilder::checkRoute(const Input::Processed::Route &Route) {
+bool BondaryBuilder::checkPins() const {
+  for (auto &Pin : Net->getPins()) {
+    auto CellPtr = Pin.getInst();
+    int R = 0, C = 0;
+    std::tie(R, C) = GridManager->getCellCoordinate(CellPtr);
+    int L = Pin.getMasterPin()->getPinLayer()->getIdx();
+    if (GridManager->getGrid(R, C, L).getSupply() <= 0)
+      return false;
+  }
+  return true;
+}
+
+bool BondaryBuilder::checkRoute(const Input::Processed::Route &Route) const {
   int R = Route.getSRowIdx();
   int C = Route.getSColIdx();
   for (int L = Route.getSLayIdx(); L <= Route.getELayIdx(); ++L) {
@@ -14,6 +26,10 @@ bool BondaryBuilder::checkRoute(const Input::Processed::Route &Route) {
 }
 
 void BondaryBuilder::createBondaryInfo() {
+  if (!checkPins()) {
+    BondaryInfoExist = false;
+    return;
+  }
   const auto &InputPtr = GridManager->getInputPtr();
   int RowBeginIdx = InputPtr->getRowBeginIdx();
   int ColBeginIdx = InputPtr->getColBeginIdx();
