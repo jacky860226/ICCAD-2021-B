@@ -69,14 +69,17 @@ GridManager::coordinateInv(unsigned long long Coordinate) const {
 }
 
 void GridManager::addNet(const Input::Processed::Net *Net) {
+  increaseTag();
   auto tryAddNet = [&](int R, int C, int L) {
     auto Coordinate = coordinateTrans(R, C, L);
     assert(Coordinate < Grids.size());
     auto &Grid = Grids.at(Coordinate);
-    if (!Grid.addNet(Net))
+    if (Grid.getTag() == Tag)
       return;
+    Grid.getTag() = Tag;
+    bool IsOverflow = Grid.isOverflow();
     Grid.addDemand(1);
-    if (Grid.isOverflow()) {
+    if (!IsOverflow && Grid.isOverflow()) {
       OverflowGrids.emplace(Coordinate);
     }
   };
@@ -102,12 +105,14 @@ void GridManager::addNet(const Input::Processed::Net *Net) {
 }
 
 void GridManager::removeNet(const Input::Processed::Net *Net) {
+  increaseTag();
   auto tryRemoveNet = [&](int R, int C, int L) {
     auto Coordinate = coordinateTrans(R, C, L);
     assert(Coordinate < Grids.size());
     auto &Grid = Grids.at(Coordinate);
-    if (!Grid.removeNet(Net))
+    if (Grid.getTag() == Tag)
       return;
+    Grid.getTag() = Tag;
     bool IsOverflow = Grid.isOverflow();
     Grid.addDemand(-1);
     if (IsOverflow && !Grid.isOverflow()) {
