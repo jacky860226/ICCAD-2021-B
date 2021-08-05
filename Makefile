@@ -13,6 +13,8 @@ SRC_DIRS := src\
 			src/lib/cell_move_router/Router\
 			src/lib/cell_move_router/RegionCalculator\
 			src/lib/cell_move_router/Mover
+FLUTE_WRAPPER_DIR := $(INCLUDE)/Third/Flute3-Cpp-Wrapper
+FLUTE_WRAPPER_LIB := $(FLUTE_WRAPPER_DIR)/libflute3wrapper.a
 SRCS := $(wildcard $(SRC_DIRS:=/*.cpp))
 OBJS := $(SRCS:.cpp=.o)
 DEPS = $(OBJS:.o=.d)
@@ -23,8 +25,11 @@ endif
 
 all: $(TARGET)
 
-$(TARGET): $(OBJS)
+$(TARGET): $(OBJS) $(FLUTE_WRAPPER_LIB)
 	$(CXX) -o $@ $^ -lpthread $(OPENMPFLAG)
+
+$(FLUTE_WRAPPER_LIB):
+	$(MAKE) -C $(FLUTE_WRAPPER_DIR)
 
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) $(WARNINGFLAGS) $(OPENMPFLAG) -I $(INCLUDE) -isystem $(BOOST_LIBRARY_PATH) -MMD -c $< -o $@
